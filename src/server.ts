@@ -1,7 +1,8 @@
 import { createServer } from "http";
 import app from "./app.js";
+import { appConfig } from "./config/appConfig.js";
 
-const PORT = 5000;
+const PORT = appConfig.port;
 
 const server = createServer(app);
 
