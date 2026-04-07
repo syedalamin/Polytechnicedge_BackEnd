@@ -11,7 +11,7 @@ async function main() {
 
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
-    //   console.log(`📖 API docs: http://localhost:${PORT}/api/v1`);
+  
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);
