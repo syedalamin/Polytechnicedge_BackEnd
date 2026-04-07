@@ -1,0 +1,518 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  SUPER_ADMIN
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  ALL_LEVELS
+}
+
+enum EnrollmentStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum ContentType {
+  VIDEO
+  TEXT
+  PDF
+  AUDIO
+  EXTERNAL_LINK
+  INTERACTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum Semester {
+  FIRST
+  SECOND
+  THIRD
+  FOURTH
+  FIFTH
+  SIXTH
+  SEVENTH
+  EIGHTH
+  ALL_LEVELS
+}
+
+enum SessionType {
+  LIVE_CLASS
+  SUPPORT_SESSION
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  username           String    @unique
+  password           String
+  needPasswordChange Boolean   @default(false)
+  role               UserRole
+  status             String?
+  emailVerified      Boolean   @default(false)
+  twoFactorEnabled   Boolean   @default(false)
+  lastLogin          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  adminProfile      AdminProfile?
+  instructorProfile InstructorProfile?
+  studentProfile    StudentProfile?
+  orders            Order[]
+  payments          Payment[]
+  enrollments       Enrollment[]
+  userProgress      UserProgress[]
+  certificates      Certificate[]
+  notices           Notice[]
+  quizAttempts      QuizAttempt[]
+
+  @@map("users")
+}
+
+model InstructorProfile {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  firstName       String
+  middleName      String?
+  lastName        String
+  slug            String    @unique
+  bio             String?
+  address         String?
+  gender          String?
+  expertise       String[]
+  qualification   String?
+  experienceYears Int?
+  linkedin        String?
+  website         String?
+  rating          Float     @default(0)
+  contactNumber1  String?
+  contactNumber2  String?
+  profileImage    String?
+  backgroundImage String?
+  suspendedReason String?
+  settings        Json?
+  suspendedAt     DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relações
+  sessions          Session[]
+  courseInstructors CourseInstructor[]
+
+  @@map("instructor_profiles")
+}
+
+model StudentProfile {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  firstName      String
+  middleName     String?
+  lastName       String
+  bio            String?
+  address        String?
+  educationLevel String?
+  interests      String[]
+  dateOfBirth    DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relações
+  sessionBookings SessionBooking[]
+
+  @@map("student_profiles")
+}
+
+model AdminProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  firstName   String
+  middleName  String?
+  lastName    String
+  bio         String?
+  address     String?
+  dateOfBirth DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("admin_profiles")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  courses Course[]
+
+  @@map("categories")
+}
+
+model Course {
+  id                  String      @id @default(uuid())
+  title               String
+  slug                String      @unique
+  shortDescription    String?
+  longDescription     String?
+  thumbnail           String?
+  previewVideoUrl     String?
+  price               Decimal     @db.Decimal(10, 2)
+  isPublished         Boolean     @default(false)
+  isFeatured          Boolean     @default(false)
+  level               CourseLevel @default(ALL_LEVELS)
+  categoryId          String
+  category            Category    @relation(fields: [categoryId], references: [id])
+  durationHours       Float?
+  whatYouWillLearn    String[]
+  requirements        String[]
+  prerequisites       String[]
+  tags                String[]
+  accessExpiresInDays Int
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  // Relações
+  modules      Module[]
+  enrollments  Enrollment[]
+  orderItems   OrderItem[]
+  userProgress UserProgress[]
+  certificates Certificate[]
+  notices      Notice[]
+  instructors  CourseInstructor[]
+  bundleItems  CourseBundleItem[]
+
+  @@map("courses")
+}
+
+model CourseInstructor {
+  id           String            @id @default(uuid())
+  courseId     String
+  course       Course            @relation(fields: [courseId], references: [id])
+  instructorId String
+  instructor   InstructorProfile @relation(fields: [instructorId], references: [id])
+  createdAt    DateTime          @default(now())
+
+  @@map("course_instructors")
+}
+
+model Module {
+  id                String   @id @default(uuid())
+  courseId          String
+  course            Course   @relation(fields: [courseId], references: [id])
+  weekNumber        Int
+  title             String
+  slug              String
+  textInstruction   String?
+  estimatedDuration Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relações
+  contents Content[]
+  quizzes  Quiz[]
+
+  @@map("modules")
+}
+
+model Content {
+  id          String      @id @default(uuid())
+  moduleId    String
+  module      Module      @relation(fields: [moduleId], references: [id])
+  title       String
+  slug        String
+  contentType ContentType
+  contentUrl  String?
+  textContent String?
+  isLocked    Boolean     @default(true)
+  duration    Int?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("contents")
+}
+
+model Quiz {
+  id           String   @id @default(uuid())
+  moduleId     String
+  module       Module   @relation(fields: [moduleId], references: [id])
+  title        String
+  isAdaptive   Boolean  @default(false)
+  isLocked     Boolean  @default(true)
+  timeLimit    Int      @default(2)
+  passingScore Float    @default(10)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relações
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  question      String
+  options       Json
+  correctAnswer Json
+  marks         Int
+  explanation   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  quizId       String
+  quiz         Quiz     @relation(fields: [quizId], references: [id])
+  score        Int
+  isPassed     Boolean
+  answers      Json
+  attemptCount Int      @default(1)
+  attemptedAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relações
+  submissions QuizAttemptSubmission[]
+
+  @@map("quiz_attempts")
+}
+
+model QuizAttemptSubmission {
+  id            String      @id @default(uuid())
+  quizAttemptId String
+  quizAttempt   QuizAttempt @relation(fields: [quizAttemptId], references: [id])
+  userId        String
+  textAnswer    Json
+  marks         Float?
+  feedback      String?
+  totalMarks    Float?
+  submittedAt   DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("quiz_attempt_submissions")
+}
+
+model UserProgress {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  courseId     String
+  course       Course    @relation(fields: [courseId], references: [id])
+  progress     Float     @default(0)
+  isCompleted  Boolean   @default(false)
+  lastAccessed DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("user_progress")
+}
+
+model Certificate {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  courseId       String
+  course         Course   @relation(fields: [courseId], references: [id])
+  certificateUrl String
+  issuedAt       DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("certificates")
+}
+
+model Enrollment {
+  id         String           @id @default(uuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id])
+  courseId   String
+  course     Course           @relation(fields: [courseId], references: [id])
+  status     EnrollmentStatus @default(PENDING)
+  enrolledAt DateTime         @default(now())
+  expiresAt  DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@map("enrollments")
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  totalAmount   Decimal     @db.Decimal(10, 2)
+  status        OrderStatus @default(PENDING)
+  transactionId String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relações
+  items   OrderItem[]
+  payment Payment?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  price     Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("order_items")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  orderId       String        @unique
+  order         Order         @relation(fields: [orderId], references: [id])
+  amount        Decimal       @db.Decimal(10, 2)
+  transactionId String
+  paymentMethod String
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model CourseBundle {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  description String
+  price       Decimal  @db.Decimal(10, 2)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  items CourseBundleItem[]
+
+  @@map("course_bundles")
+}
+
+model CourseBundleItem {
+  id        String       @id @default(uuid())
+  bundleId  String
+  bundle    CourseBundle @relation(fields: [bundleId], references: [id])
+  courseId  String
+  course    Course       @relation(fields: [courseId], references: [id])
+  price     Decimal      @db.Decimal(10, 2)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("course_bundle_items")
+}
+
+model Session {
+  id               String            @id @default(uuid())
+  title            String
+  instructorId     String
+  instructor       InstructorProfile @relation(fields: [instructorId], references: [id])
+  shortDescription String
+  type             SessionType
+  semester         Semester
+  duration         Int?
+  meetingUrl       String
+  startTime        DateTime
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  // Relações
+  bookings SessionBooking[]
+
+  @@map("sessions")
+}
+
+model SessionBooking {
+  id        String         @id @default(uuid())
+  sessionId String
+  session   Session        @relation(fields: [sessionId], references: [id])
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  serialNo  Int            @default(1)
+  bookedAt  DateTime       @default(now())
+
+  @@map("session_bookings")
+}
+
+model Notice {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  isGlobal  Boolean  @default(false)
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notices")
+}
