@@ -10,7 +10,7 @@ const server = createServer(app);
 async function main() {
   try {
     await redisClient.ping();
-    console.log("✅ Redis connected");
+     
     console.log("✅ Database connected");
 
     server.listen(PORT, () => {
