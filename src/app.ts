@@ -8,7 +8,9 @@ import { sendResponse } from "./Shared/sendResponse.js";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandler.js";
 import { handleNotFoundError } from "./errors/notFound.js";
 import graphqlRouter from "./app/graphql/graphql.router.js";
- 
+import { Routers } from "./app/routers/index.js";
+
+  
 const app: Application = express();
 
 app.use(helmet());
@@ -32,7 +34,8 @@ app.use("/api", limiter);
 app.get("/", async (req, res) => {
   sendResponse(res, httpStatus.OK, "Welcome to the API", { version: "1.0.0" });
 });
-app.use(graphqlRouter)
+app.use("/api/v1", Routers);
+app.use(graphqlRouter);
 app.use(handleNotFoundError);
 app.use(globalErrorHandler);
 

@@ -1,4 +1,11 @@
 export const baseTypeDefs = `#graphql
+  enum SortOrder {
+    asc
+    desc
+  }
+
+  scalar DateTime
+
   type Query {
     _empty: String
   }
