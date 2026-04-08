@@ -8,29 +8,42 @@ export const generateUsername = async (
   const parts = [firstName, middleName, lastName].filter(Boolean);
   const baseName = parts.join("").toLowerCase().replace(/\s+/g, "");
 
- 
-  const baseUser = await prismaClient.user.findUnique({
-    where: { username: baseName },
-    select: { id: true },
+   
+
+  const existingUsers = await prismaClient.user.findMany({
+    where: {
+      username: {
+        startsWith: baseName,
+      },
+    },
+    select: { username: true },
   });
 
-  if (!baseUser) {
+  if (existingUsers.length === 0) {
     return baseName;
   }
 
-  let counter = 1;
-  while (true) {
-    const checkUsername = `${baseName}${counter}`;
+  let maxNumber = 0;
 
-    const existingUser = await prismaClient.user.findUnique({
-      where: { username: checkUsername },
-      select: { id: true },
-    });
+  for (const user of existingUsers) {
+    const username = user.username;
 
-    if (!existingUser) {
-      return checkUsername;
+    // Remove baseName prefix
+    const suffix = username.slice(baseName.length); // john10 -> "10", john -> ""
+
+    if (suffix === "") {
+      // exact match: "john"
+      maxNumber = Math.max(maxNumber, 0);
+      continue;
     }
 
-    counter++;
+    // Check if suffix is a valid number
+    const num = parseInt(suffix, 10);
+    if (!isNaN(num)) {
+      maxNumber = Math.max(maxNumber, num);
+    }
+    // else ignore usernames like "johnX" or "john_abc"
   }
+
+  return `${baseName}${maxNumber + 1}`;
 };

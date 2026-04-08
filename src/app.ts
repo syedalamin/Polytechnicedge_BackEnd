@@ -35,7 +35,7 @@ app.get("/", async (req, res) => {
   sendResponse(res, httpStatus.OK, "Welcome to the API", { version: "1.0.0" });
 });
 app.use("/api/v1", Routers);
-app.use(graphqlRouter);
+app.use("/api/v1",graphqlRouter);
 app.use(handleNotFoundError);
 app.use(globalErrorHandler);
 

@@ -3,46 +3,44 @@ import { UserRole } from "../../../generated/prisma/enums";
 import { ICreateAdmin, IUpdateAdmin } from "./admin.interface";
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
+ 
 
 const createAdmin = async (adminData: ICreateAdmin) => {
- 
   const username = await generateUsername(
     adminData.firstName,
     adminData.middleName,
     adminData.lastName,
   );
-  // const hashedPassword = await hashPassword(adminData.password);
-  console.log("Generated username:", username);
-  // console.log("Hashed password:", hashedPassword);
+  const hashedPassword = await hashPassword(adminData.password);
 
-  // const result = await prismaClient.$transaction(async (tx) => {
-  //   const user = await tx.user.create({
-  //     data: {
-  //       email: adminData.email,
-  //       password: hashedPassword,
-  //       username,
-  //       role: UserRole.ADMIN,
-  //     },
-  //   });
+  const result = await prismaClient.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        email: adminData.email,
+        password: hashedPassword,
+        username,
+        role: UserRole.ADMIN,
+      },
+    });
 
-  //   const admin = await tx.adminProfile.create({
-  //     data: {
-  //       userId: user.id,
-  //       firstName: adminData.firstName,
-  //       middleName: adminData.middleName || null,
-  //       lastName: adminData.lastName,
-  //       bio: adminData.bio || null,
-  //       address: adminData.address || null,
-  //       dateOfBirth: adminData.dateOfBirth
-  //         ? new Date(adminData.dateOfBirth)
-  //         : null,
-  //     },
-  //   });
+    const admin = await tx.adminProfile.create({
+      data: {
+        userId: user.id,
+        firstName: adminData.firstName,
+        middleName: adminData.middleName || null,
+        lastName: adminData.lastName,
+        bio: adminData.bio || null,
+        address: adminData.address || null,
+        dateOfBirth: adminData.dateOfBirth
+          ? new Date(adminData.dateOfBirth)
+          : null,
+      },
+    });
 
-  //   return admin;
-  // });
+    return admin;
+  });
 
-  return "result";
+  return result;
 };
 
 const deleteAdmin = async (id: string) => {
@@ -66,12 +64,19 @@ const updateAdminProfile = async (id: string, data: IUpdateAdmin) => {
 const getAdminById = async (id: string) => {
   const result = await prismaClient.adminProfile.findUnique({
     where: { id },
+    include: {
+      user: true,
+    },
   });
   return result;
 };
 
 const getAllAdmins = async () => {
-  const result = await prismaClient.adminProfile.findMany();
+  const result = await prismaClient.adminProfile.findMany({
+    include: {
+      user: true,
+    },
+  });
   return result;
 };
 
@@ -79,7 +84,11 @@ const getAdminByEmail = async (email: string) => {
   const result = await prismaClient.user.findUnique({
     where: { email },
     include: {
-      adminProfile: true,
+      adminProfile: {
+        include: {
+          user: true,
+        },
+      },
     },
   });
   return result?.adminProfile;
@@ -88,6 +97,9 @@ const getAdminByEmail = async (email: string) => {
 const getAdminProfile = async (id: string) => {
   const result = await prismaClient.adminProfile.findUnique({
     where: { id },
+    include: {
+      user: true,
+    },
   });
   return result;
 };
