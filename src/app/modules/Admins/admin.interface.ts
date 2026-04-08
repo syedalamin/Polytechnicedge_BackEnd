@@ -13,13 +13,14 @@ export interface IAdmin {
 }
 
 export interface ICreateAdmin {
-  userId: string;
+  email: string;
+  password: string;
   firstName: string;
   middleName?: string;
   lastName: string;
   bio?: string;
   address?: string;
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
 }
 
 export interface IUpdateAdmin {

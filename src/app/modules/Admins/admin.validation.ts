@@ -1,25 +1,66 @@
-import { z } from 'zod';
-
+import { z } from "zod";
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 export const createAdminValidation = z.object({
   body: z.object({
-    userId: z.string().uuid(),
-    firstName: z.string().min(1),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1),
-    bio: z.string().optional(),
-    address: z.string().optional(),
-    dateOfBirth: z.string().datetime().optional(),
+    email: z.email(),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" })
+      .regex(passwordRegex, {
+        message:
+          "Password must contain at least one uppercase, one lowercase, one number and one special character",
+      }),
+
+    firstName: z
+      .string()
+      .min(1, { message: "First name is required" })
+      .max(100, { message: "First name cannot exceed 100 characters" }),
+    middleName: z
+      .string()
+      .max(100, { message: "Middle name cannot exceed 100 characters" })
+      .optional(),
+    lastName: z
+      .string()
+      .min(1, { message: "Last name is required" })
+      .max(100, { message: "Last name cannot exceed 100 characters" }),
+    bio: z
+      .string()
+      .max(500, { message: "Bio cannot exceed 500 characters" })
+      .optional(),
+    address: z
+      .string()
+      .max(255, { message: "Address cannot exceed 255 characters" })
+      .optional(),
+    dateOfBirth: z.string().optional(),
   }),
 });
 
 export const updateAdminValidation = z.object({
   body: z.object({
-    firstName: z.string().min(1).optional(),
-    middleName: z.string().optional(),
-    lastName: z.string().min(1).optional(),
-    bio: z.string().optional(),
-    address: z.string().optional(),
-    dateOfBirth: z.string().datetime().optional(),
+    firstName: z
+      .string()
+      .min(1, { message: "First name is required" })
+      .max(100, { message: "First name cannot exceed 100 characters" })
+      .optional(),
+    middleName: z
+      .string()
+      .max(100, { message: "Middle name cannot exceed 100 characters" })
+      .optional(),
+    lastName: z
+      .string()
+      .min(1, { message: "Last name is required" })
+      .max(100, { message: "Last name cannot exceed 100 characters" })
+      .optional(),
+    bio: z
+      .string()
+      .max(500, { message: "Bio cannot exceed 500 characters" })
+      .optional(),
+    address: z
+      .string()
+      .max(255, { message: "Address cannot exceed 255 characters" })
+      .optional(),
+    dateOfBirth: z.string().optional(),
   }),
 });
 
