@@ -4,7 +4,6 @@ import { appConfig } from "./appConfig.js";
 const redisClient = new Redis({
   host: appConfig.redis.host,
   port: appConfig.redis.port,
-  password: appConfig.redis.password,
   db: appConfig.redis.db,
   retryStrategy: (times) => {
     const delay = Math.min(times * 50, 2000);
