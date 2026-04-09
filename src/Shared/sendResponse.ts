@@ -1,6 +1,6 @@
 import type { Response } from "express";
 
-interface IApiResponse<T> {
+export interface IApiResponse<T> {
   success: boolean;
   statusCode: number;
   message: string;
