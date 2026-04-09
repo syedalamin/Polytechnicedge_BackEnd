@@ -10,9 +10,15 @@ import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
 import { calculatePagination } from "../../../utils/pagination";
 import redis from "../../../utils/redis";
+import { slugGeneratorUser } from "../../../utils/slugGeneratorUser";
 
 const createAdmin = async (adminData: ICreateAdmin) => {
   const username = await generateUsername(
+    adminData.firstName,
+    adminData.middleName,
+    adminData.lastName,
+  );
+  const slug = await slugGeneratorUser(
     adminData.firstName,
     adminData.middleName,
     adminData.lastName,
@@ -25,6 +31,7 @@ const createAdmin = async (adminData: ICreateAdmin) => {
         email: adminData.email,
         password: hashedPassword,
         username,
+        slug,
         role: UserRole.ADMIN,
       },
     });
@@ -35,6 +42,8 @@ const createAdmin = async (adminData: ICreateAdmin) => {
         firstName: adminData.firstName,
         middleName: adminData.middleName || null,
         lastName: adminData.lastName,
+        slug,
+        username,
         bio: adminData.bio || null,
         address: adminData.address || null,
         dateOfBirth: adminData.dateOfBirth

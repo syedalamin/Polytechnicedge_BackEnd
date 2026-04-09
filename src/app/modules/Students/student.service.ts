@@ -10,9 +10,15 @@ import redis from "../../../utils/redis";
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
 import { UserRole } from "../../../generated/prisma/enums";
+import { slugGeneratorUser } from "../../../utils/slugGeneratorUser";
 
 const createStudentProfile = async (studentData: ICreateStudent) => {
   const username = await generateUsername(
+    studentData.firstName,
+    studentData.middleName,
+    studentData.lastName,
+  );
+  const slug = await slugGeneratorUser(
     studentData.firstName,
     studentData.middleName,
     studentData.lastName,
@@ -24,6 +30,7 @@ const createStudentProfile = async (studentData: ICreateStudent) => {
       data: {
         email: studentData.email,
         username,
+        slug,
         password: hashedPassword,
         role: UserRole.STUDENT,
       },
@@ -35,6 +42,8 @@ const createStudentProfile = async (studentData: ICreateStudent) => {
         firstName: studentData.firstName,
         middleName: studentData.middleName || null,
         lastName: studentData.lastName,
+        slug,
+        username,
         bio: studentData.bio || null,
         address: studentData.address || null,
         educationLevel: studentData.educationLevel || null,
