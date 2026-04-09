@@ -13,7 +13,12 @@ export const adminTypeDefs = `#graphql
     updatedAt: DateTime!
   }
 
- 
+  type PaginationMeta {
+    page: Int!
+    limit: Int!
+    total: Int!
+    totalPages: Int!
+  }
 
   type PaginatedAdmins {
     admins: [Admin!]!
