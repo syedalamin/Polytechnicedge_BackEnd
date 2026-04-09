@@ -133,6 +133,7 @@ model InstructorProfile {
   backgroundImage String?
   suspendedReason String?
   settings        Json?
+  dateOfBirth     DateTime?
   suspendedAt     DateTime?
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
@@ -146,22 +147,27 @@ model InstructorProfile {
 }
 
 model StudentProfile {
-  id             String    @id @default(uuid())
-  userId         String    @unique
-  user           User      @relation(fields: [userId], references: [id])
-  slug           String    @unique
-  username       String    @unique
-  firstName      String
-  middleName     String?
-  lastName       String
-  bio            String?
-  address        String?
-  educationLevel String?
-  interests      String[]
-  dateOfBirth    DateTime?
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  slug            String    @unique
+  username        String    @unique
+  firstName       String
+  middleName      String?
+  lastName        String
+  bio             String?
+  address         String?
+  gender          String?
+  profileImage    String?
+  backgroundImage String?
+  contactNumber1  String?
+  contactNumber2  String?
+  educationLevel  String?
+  interests       String[]
+  dateOfBirth     DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relações
   sessionBookings SessionBooking[]
@@ -170,20 +176,25 @@ model StudentProfile {
 }
 
 model AdminProfile {
-  id          String    @id @default(uuid())
-  userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id])
-  slug        String    @unique
-  username    String    @unique
-  firstName   String
-  middleName  String?
-  lastName    String
-  bio         String?
-  address     String?
-  dateOfBirth DateTime?
-  deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  slug            String    @unique
+  username        String    @unique
+  firstName       String
+  middleName      String?
+  lastName        String
+  bio             String?
+  address         String?
+  gender          String?
+  profileImage    String?
+  backgroundImage String?
+  contactNumber1  String?
+  contactNumber2  String?
+  dateOfBirth     DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("admin_profiles")
 }

@@ -6,6 +6,11 @@ export interface IAdmin {
   lastName: string;
   bio?: string | null;
   address?: string | null;
+  gender?: string | null;
+  profileImage?: string | null;
+  backgroundImage?: string | null;
+  contactNumber1?: string | null;
+  contactNumber2?: string | null;
   dateOfBirth?: Date | null;
   deletedAt?: Date | null;
   createdAt: Date;
@@ -20,6 +25,11 @@ export interface ICreateAdmin {
   lastName: string;
   bio?: string;
   address?: string;
+  gender?: string;
+  profileImage?: string;
+  backgroundImage?: string;
+  contactNumber1?: string;
+  contactNumber2?: string;
   dateOfBirth?: string;
 }
 
@@ -29,6 +39,11 @@ export interface IUpdateAdmin {
   lastName?: string;
   bio?: string;
   address?: string;
+  gender?: string;
+  profileImage?: string;
+  backgroundImage?: string;
+  contactNumber1?: string;
+  contactNumber2?: string;
   dateOfBirth?: Date;
 }
 

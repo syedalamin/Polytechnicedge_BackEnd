@@ -32,6 +32,20 @@ export const passwordRegex =
       .string()
       .max(255, { message: "Address cannot exceed 255 characters" })
       .optional(),
+    gender: z
+      .string()
+      .max(50, { message: "Gender cannot exceed 50 characters" })
+      .optional(),
+    profileImage: z.string().url().optional(),
+    backgroundImage: z.string().url().optional(),
+    contactNumber1: z
+      .string()
+      .max(20, { message: "Contact number cannot exceed 20 characters" })
+      .optional(),
+    contactNumber2: z
+      .string()
+      .max(20, { message: "Contact number cannot exceed 20 characters" })
+      .optional(),
     dateOfBirth: z.string().optional(),
   }),
 });
@@ -59,6 +73,20 @@ export const passwordRegex =
     address: z
       .string()
       .max(255, { message: "Address cannot exceed 255 characters" })
+      .optional(),
+    gender: z
+      .string()
+      .max(50, { message: "Gender cannot exceed 50 characters" })
+      .optional(),
+    profileImage: z.string().url().optional(),
+    backgroundImage: z.string().url().optional(),
+    contactNumber1: z
+      .string()
+      .max(20, { message: "Contact number cannot exceed 20 characters" })
+      .optional(),
+    contactNumber2: z
+      .string()
+      .max(20, { message: "Contact number cannot exceed 20 characters" })
       .optional(),
     dateOfBirth: z.string().optional(),
   }),

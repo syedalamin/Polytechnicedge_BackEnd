@@ -9,6 +9,11 @@ export const studentTypeDefs = `#graphql
     lastName: String!
     bio: String
     address: String
+    gender: String
+    profileImage: String
+    backgroundImage: String
+    contactNumber1: String
+    contactNumber2: String
     educationLevel: String
     interests: [String!]!
     dateOfBirth: DateTime

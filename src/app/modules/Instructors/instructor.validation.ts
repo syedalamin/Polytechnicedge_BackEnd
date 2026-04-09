@@ -33,6 +33,7 @@ const createInstructorValidation = z.object({
       .max(255, { message: "Address cannot exceed 255 characters" })
       .optional(),
     gender: z.string().optional(),
+    dateOfBirth: z.date().optional(),
     expertise: z.array(z.string()).optional(),
     qualification: z
       .string()
@@ -79,6 +80,7 @@ const updateInstructorValidation = z.object({
       .max(255, { message: "Address cannot exceed 255 characters" })
       .optional(),
     gender: z.string().optional(),
+    dateOfBirth: z.date().optional(),
     expertise: z.array(z.string()).optional(),
     qualification: z
       .string()

@@ -6,6 +6,11 @@ export interface IStudentProfile {
   lastName: string;
   bio?: string | null;
   address?: string | null;
+  gender?: string | null;
+  profileImage?: string | null;
+  backgroundImage?: string | null;
+  contactNumber1?: string | null;
+  contactNumber2?: string | null;
   educationLevel?: string | null;
   interests: string[];
   dateOfBirth?: Date | null;
@@ -23,6 +28,11 @@ export interface ICreateStudent {
   lastName: string;
   bio?: string;
   address?: string;
+  gender?: string;
+  profileImage?: string;
+  backgroundImage?: string;
+  contactNumber1?: string;
+  contactNumber2?: string;
   educationLevel?: string;
   interests?: string[];
   dateOfBirth?: string;
@@ -34,6 +44,11 @@ export interface IUpdateStudentProfile {
   lastName?: string;
   bio?: string;
   address?: string;
+  gender?: string;
+  profileImage?: string;
+  backgroundImage?: string;
+  contactNumber1?: string;
+  contactNumber2?: string;
   educationLevel?: string;
   interests?: string[];
   dateOfBirth?: string;

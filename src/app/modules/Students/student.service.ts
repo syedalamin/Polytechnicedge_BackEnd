@@ -46,6 +46,11 @@ const createStudentProfile = async (studentData: ICreateStudent) => {
         username,
         bio: studentData.bio || null,
         address: studentData.address || null,
+        gender: studentData.gender || null,
+        profileImage: studentData.profileImage || null,
+        backgroundImage: studentData.backgroundImage || null,
+        contactNumber1: studentData.contactNumber1 || null,
+        contactNumber2: studentData.contactNumber2 || null,
         educationLevel: studentData.educationLevel || null,
         interests: studentData.interests || [],
         dateOfBirth: studentData.dateOfBirth

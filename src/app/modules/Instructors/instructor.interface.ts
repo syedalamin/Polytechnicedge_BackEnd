@@ -9,6 +9,7 @@ export interface IInstructor {
   bio?: string | null;
   address?: string | null;
   gender?: string | null;
+  dateOfBirth?: Date | null;
   expertise?: string[];
   qualification?: string | null;
   experienceYears?: number | null;
@@ -36,6 +37,7 @@ export interface ICreateInstructor {
   bio?: string;
   address?: string;
   gender?: string;
+  dateOfBirth?: Date;
   expertise?: string[];
   qualification?: string;
   experienceYears?: number;
@@ -54,6 +56,7 @@ export interface IUpdateInstructor {
   bio?: string;
   address?: string;
   gender?: string;
+  dateOfBirth?: Date | null;
   expertise?: string[];
   qualification?: string;
   experienceYears?: number;

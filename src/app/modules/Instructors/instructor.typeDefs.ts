@@ -10,6 +10,7 @@ export const instructorTypeDefs = `#graphql
     bio: String
     address: String
     gender: String
+    dateOfBirth: DateTime
     expertise: [String!]
     qualification: String
     experienceYears: Int
@@ -58,6 +59,7 @@ export const instructorTypeDefs = `#graphql
     bio: String
     address: String
     gender: String
+    dateOfBirth: DateTime
     expertise: [String!]
     qualification: String
     experienceYears: Int
@@ -76,6 +78,7 @@ export const instructorTypeDefs = `#graphql
     bio: String
     address: String
     gender: String
+    dateOfBirth: DateTime
     expertise: [String!]
     qualification: String
     experienceYears: Int

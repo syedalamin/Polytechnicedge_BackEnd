@@ -10,6 +10,11 @@ export const adminTypeDefs = `#graphql
     bio: String
     user: User!
     address: String
+    gender: String
+    profileImage: String
+    backgroundImage: String
+    contactNumber1: String
+    contactNumber2: String
     dateOfBirth: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!

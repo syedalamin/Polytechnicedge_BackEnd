@@ -46,6 +46,11 @@ const createAdmin = async (adminData: ICreateAdmin) => {
         username,
         bio: adminData.bio || null,
         address: adminData.address || null,
+        gender: adminData.gender || null,
+        profileImage: adminData.profileImage || null,
+        backgroundImage: adminData.backgroundImage || null,
+        contactNumber1: adminData.contactNumber1 || null,
+        contactNumber2: adminData.contactNumber2 || null,
         dateOfBirth: adminData.dateOfBirth
           ? new Date(adminData.dateOfBirth)
           : null,
