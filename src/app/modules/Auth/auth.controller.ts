@@ -7,7 +7,6 @@ import catchAsync from "../../../Shared/catchAsync";
 const login = catchAsync(async (req, res) => {
   const result = await authService.login(req.body);
 
-
   res.cookie("token", result.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

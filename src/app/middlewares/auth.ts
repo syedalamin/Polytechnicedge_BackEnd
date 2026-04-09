@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
-import { sendResponse } from "../../Shared/sendResponse";
+ 
 import httpStatus from "http-status";
 import { verifyToken } from "../../lib/generateToken";
 import { sendErrorResponse } from "../../Shared/sendErrorResponse";

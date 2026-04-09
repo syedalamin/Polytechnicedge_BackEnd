@@ -1,5 +1,5 @@
 import { sendErrorResponse } from "../../Shared/sendErrorResponse";
-import { sendResponse } from "../../Shared/sendResponse";
+ 
 
 import httpStatus from "http-status";
 const graphqlAuth = async (context: any, ...allowedRoles: string[]) => {
