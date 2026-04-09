@@ -5,10 +5,8 @@ export const slugGeneratorUser = async (
   middleName?: string,
   lastName?: string,
 ): Promise<string> => {
-  const parts = [firstName, middleName, lastName]
-    .filter(Boolean)
-    .map((part) => part?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") ?? "");
-  const baseSlug = parts.join("-");
+  const parts = [firstName, middleName, lastName].filter(Boolean);
+  const baseSlug = parts.join("-").toLowerCase().replace(/\s+/g, "");
 
   const existingUsers = await prismaClient.user.findMany({
     where: {
@@ -41,5 +39,5 @@ export const slugGeneratorUser = async (
     }
   }
 
-  return maxNumber > 0 ? `${baseSlug}-${maxNumber + 1}` : baseSlug;
+  return `${baseSlug}-${maxNumber + 1}`;
 };

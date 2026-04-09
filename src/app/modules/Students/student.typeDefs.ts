@@ -2,6 +2,8 @@ export const studentTypeDefs = `#graphql
   type Student {
     id: ID!
     userId: String!
+    username: String!
+    slug: String!
     firstName: String!
     middleName: String
     lastName: String!

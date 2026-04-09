@@ -2,6 +2,8 @@ export const adminTypeDefs = `#graphql
   type Admin {
     id: ID!
     userId: String!
+    username: String!
+    slug: String!
     firstName: String!
     middleName: String
     lastName: String!
