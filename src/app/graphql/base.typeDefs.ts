@@ -13,6 +13,13 @@ export const baseTypeDefs = `#graphql
   type Mutation {
     _empty: String
   }
+
+  type PaginationMeta {
+    page: Int!
+    limit: Int!
+    total: Int!
+    totalPages: Int!
+  }
 `;
 export const baseResolvers = {
   Query: {

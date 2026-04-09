@@ -1,8 +1,9 @@
 import prismaClient from "../../../config/prismaClient";
 import { UserRole } from "../../../generated/prisma/enums";
-import { ICreateAdmin, IUpdateAdmin } from "./admin.interface";
+import { ICreateAdmin, IUpdateAdmin, IPaginationOptions, IPaginatedAdmins } from "./admin.interface";
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
+import { calculatePagination } from "../../../utils/pagination";
  
 
 const createAdmin = async (adminData: ICreateAdmin) => {
@@ -71,13 +72,32 @@ const getAdminById = async (id: string) => {
   return result;
 };
 
-const getAllAdmins = async () => {
-  const result = await prismaClient.adminProfile.findMany({
-    include: {
-      user: true,
+const getAllAdmins = async (paginationOptions: IPaginationOptions): Promise<IPaginatedAdmins> => {
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(paginationOptions);
+
+  const [result, total] = await Promise.all([
+    prismaClient.adminProfile.findMany({
+      include: {
+        user: true,
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+    }),
+    prismaClient.adminProfile.count(),
+  ]);
+
+  return {
+    admins: result,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-  });
-  return result;
+  };
 };
 
 const getAdminByEmail = async (email: string) => {
