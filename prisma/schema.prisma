@@ -83,6 +83,7 @@ model User {
   id                 String    @id @default(uuid())
   email              String    @unique
   username           String    @unique
+  slug               String    @unique
   password           String
   needPasswordChange Boolean   @default(false)
   role               UserRole
@@ -116,6 +117,7 @@ model InstructorProfile {
   middleName      String?
   lastName        String
   slug            String    @unique
+  username        String    @unique
   bio             String?
   address         String?
   gender          String?
@@ -147,6 +149,8 @@ model StudentProfile {
   id             String    @id @default(uuid())
   userId         String    @unique
   user           User      @relation(fields: [userId], references: [id])
+  slug           String    @unique
+  username       String    @unique
   firstName      String
   middleName     String?
   lastName       String
@@ -169,6 +173,8 @@ model AdminProfile {
   id          String    @id @default(uuid())
   userId      String    @unique
   user        User      @relation(fields: [userId], references: [id])
+  slug        String    @unique
+  username    String    @unique
   firstName   String
   middleName  String?
   lastName    String
