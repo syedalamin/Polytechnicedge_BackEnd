@@ -1,0 +1,89 @@
+export const instructorTypeDefs = `#graphql
+  type Instructor {
+    id: ID!
+    userId: String!
+    username: String!
+    slug: String!
+    firstName: String!
+    middleName: String
+    lastName: String!
+    bio: String
+    address: String
+    gender: String
+    expertise: [String!]
+    qualification: String
+    experienceYears: Int
+    linkedin: String
+    website: String
+    rating: Float!
+    contactNumber1: String
+    contactNumber2: String
+    profileImage: String
+    backgroundImage: String
+    user: User!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type PaginatedInstructors {
+    instructors: [Instructor!]!
+    meta: PaginationMeta!
+  }
+
+  input PaginationInput {
+    page: Int
+    limit: Int
+    sortBy: String
+    sortOrder: SortOrder
+  }
+
+  type Query {
+    instructor(id: ID!): Instructor
+    getAllInstructors(pagination: PaginationInput): PaginatedInstructors!
+    instructorProfile(id: ID!): Instructor
+  }
+
+  type Mutation {
+    createInstructor(input: CreateInstructorInput!): Instructor!
+    updateInstructor(id: ID!, input: UpdateInstructorInput!): Instructor!
+    deleteInstructor(id: ID!): Instructor!
+  }
+
+  input CreateInstructorInput {
+    email: String!
+    password: String!
+    firstName: String!
+    middleName: String
+    lastName: String!
+    bio: String
+    address: String
+    gender: String
+    expertise: [String!]
+    qualification: String
+    experienceYears: Int
+    linkedin: String
+    website: String
+    contactNumber1: String
+    contactNumber2: String
+    profileImage: String
+    backgroundImage: String
+  }
+
+  input UpdateInstructorInput {
+    firstName: String
+    middleName: String
+    lastName: String
+    bio: String
+    address: String
+    gender: String
+    expertise: [String!]
+    qualification: String
+    experienceYears: Int
+    linkedin: String
+    website: String
+    contactNumber1: String
+    contactNumber2: String
+    profileImage: String
+    backgroundImage: String
+  }
+`;
