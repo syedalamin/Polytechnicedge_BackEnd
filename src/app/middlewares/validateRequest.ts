@@ -5,6 +5,7 @@ import { sendErrorResponse } from "../../Shared/sendErrorResponse";
 
 export const validateRequest = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
+    
     try {
       const parsed = schema.parse({
         body: req.body,

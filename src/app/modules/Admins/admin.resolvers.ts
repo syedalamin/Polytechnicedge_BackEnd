@@ -3,7 +3,7 @@ import { IPaginationOptions } from "../../../utils/pagination";
 import graphqlAuth from "../../middlewares/graphqlAuth";
 import { UserRole } from "../../../generated/prisma/enums";
 
-interface PaginationArgs {
+export interface PaginationArgs {
   pagination?: {
     page?: number;
     limit?: number;

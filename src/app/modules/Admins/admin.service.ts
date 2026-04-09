@@ -1,11 +1,15 @@
 import prismaClient from "../../../config/prismaClient";
 import { UserRole } from "../../../generated/prisma/enums";
-import { ICreateAdmin, IUpdateAdmin, IPaginationOptions, IPaginatedAdmins } from "./admin.interface";
+import {
+  ICreateAdmin,
+  IUpdateAdmin,
+  IPaginationOptions,
+  IPaginatedAdmins,
+} from "./admin.interface";
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
 import { calculatePagination } from "../../../utils/pagination";
 import redis from "../../../utils/redis";
- 
 
 const createAdmin = async (adminData: ICreateAdmin) => {
   const username = await generateUsername(
@@ -45,14 +49,6 @@ const createAdmin = async (adminData: ICreateAdmin) => {
   return result;
 };
 
-const deleteAdmin = async (id: string) => {
-  const result = await prismaClient.adminProfile.delete({
-    where: { id },
-  });
-  await redis.del(`admins:${id}`);
-  return result;
-};
-
 const updateAdminProfile = async (id: string, data: IUpdateAdmin) => {
   const result = await prismaClient.adminProfile.update({
     where: { id },
@@ -61,14 +57,23 @@ const updateAdminProfile = async (id: string, data: IUpdateAdmin) => {
       dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
     },
   });
-  await redis.del(`admins:${id}`);
+  await redis.del(`admins:${result.id}`);
   return result;
 };
 
+const deleteAdmin = async (id: string) => {
+  const result = await prismaClient.adminProfile.delete({
+    where: { id },
+  });
+  await redis.del(`admins:${result.id}`);
+  return result;
+};
 
-
-const getAllAdmins = async (paginationOptions: IPaginationOptions): Promise<IPaginatedAdmins> => {
-  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(paginationOptions);
+const getAllAdmins = async (
+  paginationOptions: IPaginationOptions,
+): Promise<IPaginatedAdmins> => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    calculatePagination(paginationOptions);
 
   const [result, total] = await Promise.all([
     prismaClient.adminProfile.findMany({
@@ -95,8 +100,6 @@ const getAllAdmins = async (paginationOptions: IPaginationOptions): Promise<IPag
   };
 };
 
- 
-
 const getAdminProfile = async (id: string) => {
   const cacheKey = `admins:${id}`;
   const cachedData = await redis.get(cacheKey);
@@ -112,7 +115,7 @@ const getAdminProfile = async (id: string) => {
   });
 
   if (result) {
-    await redis.set(cacheKey, result, 600); 
+    await redis.set(cacheKey, result, 600);
   }
   return result;
 };
@@ -121,8 +124,8 @@ export const adminService = {
   createAdmin,
   deleteAdmin,
   updateAdminProfile,
-   
+
   getAllAdmins,
-  
+
   getAdminProfile,
 };

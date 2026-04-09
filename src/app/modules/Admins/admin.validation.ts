@@ -1,7 +1,7 @@
 import { z } from "zod";
-const passwordRegex =
+export const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-export const createAdminValidation = z.object({
+ const createAdminValidation = z.object({
   body: z.object({
     email: z.email(),
     password: z
@@ -36,7 +36,7 @@ export const createAdminValidation = z.object({
   }),
 });
 
-export const updateAdminValidation = z.object({
+ const updateAdminValidation = z.object({
   body: z.object({
     firstName: z
       .string()
