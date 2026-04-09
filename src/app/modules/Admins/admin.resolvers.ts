@@ -1,5 +1,7 @@
 import { adminService } from "./admin.service";
 import { IPaginationOptions } from "../../../utils/pagination";
+import graphqlAuth from "../../middlewares/graphqlAuth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 interface PaginationArgs {
   pagination?: {
@@ -13,7 +15,8 @@ interface PaginationArgs {
 export const adminResolvers = {
   Query: {
    
-    getAllAdmins: async (_: unknown, args: PaginationArgs) => {
+    getAllAdmins: async (_: unknown, args: PaginationArgs, context: any) => {
+      await graphqlAuth(context, UserRole.SUPER_ADMIN , UserRole.ADMIN);
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
         limit: args.pagination?.limit || 10,

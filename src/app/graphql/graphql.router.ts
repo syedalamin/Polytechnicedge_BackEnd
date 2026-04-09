@@ -12,6 +12,8 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express5";
 import cors from "cors";
 import bodyParser from "body-parser";
+import graphqlContext from "../middlewares/graphqlContext";
+ 
 
 const graphqlRouter = Router();
 
@@ -29,9 +31,7 @@ const server = new ApolloServer({
       cors(),
       bodyParser.json(),
       expressMiddleware(server, {
-        context: async ({ req, res }) => {
-          return { req, res };
-        },
+        context:  graphqlContext
       }),
     );
 

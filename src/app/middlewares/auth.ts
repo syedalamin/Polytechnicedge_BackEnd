@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from "express";
- 
+
 import { sendResponse } from "../../Shared/sendResponse";
 import httpStatus from "http-status";
 import { verifyToken } from "../../lib/generateToken";
+import { sendErrorResponse } from "../../Shared/sendErrorResponse";
 
 export interface AuthRequest extends Request {
   user?: {
     userId: string;
+    username: string;
     email: string;
     role: string;
   };
@@ -17,7 +19,7 @@ export const auth = (...allowedRoles: string[]) => {
     const token = req.cookies?.token;
 
     if (!token) {
-      return sendResponse(
+      sendErrorResponse(
         res,
         httpStatus.UNAUTHORIZED,
         "No token provided",
@@ -27,12 +29,13 @@ export const auth = (...allowedRoles: string[]) => {
 
     const decoded = verifyToken(token);
     if (!decoded) {
-      return sendResponse(res, httpStatus.UNAUTHORIZED, "Invalid token", null);
+      sendErrorResponse(res, httpStatus.UNAUTHORIZED, "Invalid token", null);
+      return;
     }
 
     const userRole = decoded.role;
     if (!allowedRoles.includes(userRole)) {
-      return sendResponse(
+      sendErrorResponse(
         res,
         httpStatus.FORBIDDEN,
         "You do not have permission to access this resource",
