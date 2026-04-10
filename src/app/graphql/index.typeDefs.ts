@@ -4,6 +4,7 @@ import { userTypeDefs } from "../modules/Users/user.typeDefs.js";
 import { adminTypeDefs } from "../modules/Admins/admin.typeDefs.js";
 import { studentTypeDefs } from "../modules/Students/student.typeDefs.js";
 import { instructorTypeDefs } from "../modules/Instructors/instructor.typeDefs.js";
+import { categoryTypeDefs } from "../modules/Categories/category.typeDefs.js";
 
 export const typeDefs = mergeTypeDefs([
   baseTypeDefs,
@@ -11,4 +12,5 @@ export const typeDefs = mergeTypeDefs([
   adminTypeDefs,
   studentTypeDefs,
   instructorTypeDefs,
+  categoryTypeDefs,
 ]);

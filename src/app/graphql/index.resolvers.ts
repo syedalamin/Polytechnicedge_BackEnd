@@ -5,6 +5,7 @@ import { userResolvers } from "../modules/Users/user.resolvers.js";
 import { adminResolvers } from "../modules/Admins/admin.resolvers.js";
 import { studentResolvers } from "../modules/Students/student.resolvers.js";
 import { instructorResolvers } from "../modules/Instructors/instructor.resolvers.js";
+import { categoryResolvers } from "../modules/Categories/category.resolvers.js";
 
 export const resolvers: IResolvers = mergeResolvers([
   baseResolvers,
@@ -12,4 +13,5 @@ export const resolvers: IResolvers = mergeResolvers([
   adminResolvers,
   studentResolvers,
   instructorResolvers,
+  categoryResolvers,
 ]);

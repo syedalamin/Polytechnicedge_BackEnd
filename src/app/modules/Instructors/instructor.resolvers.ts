@@ -2,7 +2,7 @@ import { instructorService } from "./instructor.service";
 import { IPaginationOptions } from "../../../utils/pagination";
 import graphqlAuth from "../../middlewares/graphqlAuth";
 import { UserRole } from "../../../generated/prisma/enums";
-import { ICreateInstructor, IUpdateInstructor } from "./instructor.interface";
+ 
 
 export interface PaginationArgs {
   pagination?: {
