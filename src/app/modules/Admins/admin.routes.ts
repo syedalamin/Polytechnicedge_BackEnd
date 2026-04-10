@@ -15,7 +15,7 @@ router.post(
 );
 router.delete(
   "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN),
   adminController.deleteAdmin,
 );
 router.put(

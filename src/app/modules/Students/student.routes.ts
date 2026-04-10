@@ -9,13 +9,13 @@ const router = Router();
 
 router.post(
   "/create-student",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(studentsValidation.createStudentValidation),
   studentsController.createStudentProfile,
 );
 
 router.put(
   "/:id",
-  auth(UserRole.STUDENT, UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT),
   validateRequest(studentsValidation.updateStudentValidation),
   studentsController.updateStudentProfile,
 );

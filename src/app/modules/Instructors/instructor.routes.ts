@@ -9,6 +9,7 @@ const router = Router();
 
 router.post(
   "/create-instructor",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validateRequest(instructorValidation.createInstructorValidation),
   instructorController.createInstructor,
 );

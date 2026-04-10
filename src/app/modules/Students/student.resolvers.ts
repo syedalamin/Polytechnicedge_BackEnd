@@ -6,11 +6,24 @@ import { studentsService } from "./student.service";
 
 export const studentResolvers = {
   Query: {
-    studentProfile: async (_: any, { id }: { id: string }) => {
+    studentProfile: async (_: any, { id }: { id: string }, context: any) => {
+      await graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
       return await studentsService.getStudentProfile(id);
     },
     getAllStudents: async (_: any, args: PaginationArgs, context: any) => {
-      await graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN);
+      await graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
         limit: args.pagination?.limit || 10,

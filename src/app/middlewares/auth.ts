@@ -21,7 +21,7 @@ export const auth = (...allowedRoles: string[]) => {
       sendErrorResponse(
         res,
         httpStatus.UNAUTHORIZED,
-        "No token provided",
+        "You are now authorized to access this resource, please login",
         null,
       );
     }

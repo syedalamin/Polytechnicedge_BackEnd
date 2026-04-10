@@ -8,29 +8,26 @@ export interface PaginationArgs {
     page?: number;
     limit?: number;
     sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
+    sortOrder?: "asc" | "desc";
   };
 }
 
 export const adminResolvers = {
   Query: {
-   
     getAllAdmins: async (_: unknown, args: PaginationArgs, context: any) => {
-      await graphqlAuth(context, UserRole.SUPER_ADMIN , UserRole.ADMIN);
+      await graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN);
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
         limit: args.pagination?.limit || 10,
-        sortBy: args.pagination?.sortBy || 'createdAt',
-        sortOrder: args.pagination?.sortOrder || 'desc',
+        sortBy: args.pagination?.sortBy || "createdAt",
+        sortOrder: args.pagination?.sortOrder || "desc",
       };
       return await adminService.getAllAdmins(paginationOptions);
     },
-  
-    adminProfile: async (_: unknown, { id }: { id: string }) => {
+
+    adminProfile: async (_: unknown, { id }: { id: string }, context: any) => {
+      await graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN);
       return await adminService.getAdminProfile(id);
     },
   },
-   
 };
-
-

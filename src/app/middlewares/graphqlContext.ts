@@ -8,7 +8,7 @@ const graphqlContext = async ({ req, res }: { req: any; res: any }) => {
     return sendResponse(
       res,
       httpStatus.UNAUTHORIZED,
-      "No token provided",
+      "You are now authorized to access this resource, please login",
       null,
     );
   }
