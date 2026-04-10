@@ -2,6 +2,7 @@ import { createServer } from "http";
 import app from "./app.js";
 import { appConfig } from "./config/appConfig.js";
 import redisClient from "./config/redisClient.js";
+import seed from "./seed.js";
 
 const PORT = appConfig.port;
 
@@ -12,7 +13,7 @@ async function main() {
     await redisClient.ping();
      
     console.log("✅ Database connected");
-
+    await seed(); 
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
   
