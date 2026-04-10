@@ -7,10 +7,11 @@ import {
 } from "./category.interface";
 import { calculatePagination } from "../../../utils/pagination";
 import redis from "../../../utils/redis";
-import { slugGenerator } from "../../../utils/slugGenerator";
+import { generateUniqueSlug } from "../../../utils/slugGenerator";
+ 
 
 const createCategory = async (data: ICreateCategory) => {
-  const slug = await slugGenerator(data.name);
+  const slug = await generateUniqueSlug(data.name, { model: "category" });
 
   const result = await prismaClient.category.create({
     data: {

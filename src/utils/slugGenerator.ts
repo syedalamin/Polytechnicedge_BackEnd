@@ -1,24 +1,41 @@
 import prismaClient from "../config/prismaClient";
 
-export const slugGenerator = async (name: string): Promise<string> => {
-  const baseSlug = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+type PrismaModel = keyof typeof prismaClient;
 
-  const existingCategories = await prismaClient.category.findMany({
+interface SlugGeneratorOptions {
+  model: PrismaModel;
+  field?: string;
+}
+
+const slugGenerator = async (
+  name: string,
+  options: SlugGeneratorOptions,
+): Promise<string> => {
+  const { model, field = "slug" } = options;
+  const baseSlug = name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+
+  const modelAny = prismaClient[model] as any;
+
+  const existingRecords = await modelAny.findMany({
     where: {
-      slug: {
+      [field]: {
         startsWith: baseSlug,
       },
     },
-    select: { slug: true },
+    select: { [field]: true },
   });
 
-  if (existingCategories.length === 0) {
+  if (existingRecords.length === 0) {
     return baseSlug;
   }
 
   let maxNumber = 0;
-  for (const cat of existingCategories) {
-    const suffix = cat.slug.slice(baseSlug.length).replace(/^-/, "");
+  for (const record of existingRecords) {
+    const slugValue = record[field] as string;
+    const suffix = slugValue.slice(baseSlug.length).replace(/^-/, "");
     if (suffix === "") {
       maxNumber = Math.max(maxNumber, 0);
       continue;
@@ -31,3 +48,5 @@ export const slugGenerator = async (name: string): Promise<string> => {
 
   return `${baseSlug}-${maxNumber + 1}`;
 };
+
+export const generateUniqueSlug = slugGenerator;

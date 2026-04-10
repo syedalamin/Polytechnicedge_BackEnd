@@ -105,6 +105,7 @@ model User {
   certificates      Certificate[]
   notices           Notice[]
   quizAttempts      QuizAttempt[]
+  courses           Course[]
 
   @@map("users")
 }
@@ -217,6 +218,8 @@ model Course {
   id                  String      @id @default(uuid())
   title               String
   slug                String      @unique
+  authorId            String
+  author              User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   shortDescription    String?
   longDescription     String?
   thumbnail           String?

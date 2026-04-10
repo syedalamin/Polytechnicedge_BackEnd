@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import { categoryService } from "./category.service";
 import catchAsync from "../../../Shared/catchAsync";
 
-const createCategory = catchAsync(async (req: Request, res: Response) => {
+const createCategory = catchAsync(async (req, res) => {
   const result = await categoryService.createCategory(req.body);
   sendResponse(
     res,
@@ -14,7 +14,7 @@ const createCategory = catchAsync(async (req: Request, res: Response) => {
   );
 });
 
-const updateCategory = catchAsync(async (req: Request, res: Response) => {
+const updateCategory = catchAsync(async (req, res) => {
   const id = req.params.id as string;
   const result = await categoryService.updateCategory(id, req.body);
   sendResponse(
@@ -25,7 +25,7 @@ const updateCategory = catchAsync(async (req: Request, res: Response) => {
   );
 });
 
-const deleteCategory = catchAsync(async (req: Request, res: Response) => {
+const deleteCategory = catchAsync(async (req, res) => {
   const id = req.params.id as string;
   const result = await categoryService.deleteCategory(id);
   sendResponse(

@@ -4,7 +4,7 @@ import httpStatus from "http-status";
 import { studentsService } from "./student.service";
 import catchAsync from "../../../Shared/catchAsync";
 
-const createStudentProfile = catchAsync(async (req: Request, res: Response) => {
+const createStudentProfile = catchAsync(async (req, res) => {
   const result = await studentsService.createStudentProfile(req.body);
   sendResponse(
     res,
@@ -13,7 +13,7 @@ const createStudentProfile = catchAsync(async (req: Request, res: Response) => {
     result,
   );
 });
-const updateStudentProfile = catchAsync(async (req: Request, res: Response) => {
+const updateStudentProfile = catchAsync(async (req, res) => {
   const id = req.params.id as string;
   const result = await studentsService.updateStudentProfile(id, req.body);
   sendResponse(
@@ -24,7 +24,7 @@ const updateStudentProfile = catchAsync(async (req: Request, res: Response) => {
   );
 });
 
-const deleteStudentProfile = catchAsync(async (req: Request, res: Response) => {
+const deleteStudentProfile = catchAsync(async (req, res) => {
   const id = req.params.id as string;
   const result = await studentsService.deleteStudentProfile(id);
   sendResponse(
