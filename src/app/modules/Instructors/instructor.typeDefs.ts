@@ -22,6 +22,34 @@ export const instructorTypeDefs = `#graphql
     profileImage: String
     backgroundImage: String
     user: User!
+    sessions: [Session]
+    courseInstructors: [CourseInstructor]
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type Session {
+    id: ID!
+    instructorId: String!
+    instructor: Instructor
+    title: String!
+    description: String
+    startTime: DateTime!
+    endTime: DateTime!
+    status: String!
+    maxParticipants: Int!
+    bookings: [SessionBooking]
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type SessionBooking {
+    id: ID!
+    sessionId: String!
+    session: Session
+    userId: String!
+    user: User
+    status: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

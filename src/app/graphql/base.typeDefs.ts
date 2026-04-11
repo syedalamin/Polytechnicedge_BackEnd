@@ -5,6 +5,7 @@ export const baseTypeDefs = `#graphql
   }
 
   scalar DateTime
+  scalar Json
 
   type Query {
     _empty: String
@@ -27,5 +28,13 @@ export const baseResolvers = {
   },
   Mutation: {
     _empty: () => "ok",
+  },
+  Json: {
+    __parseValue(value: any) {
+      return JSON.stringify(value);
+    },
+    __serialize(value: any) {
+      return value;
+    },
   },
 };

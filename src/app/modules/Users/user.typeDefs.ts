@@ -3,6 +3,7 @@ export const userTypeDefs = `#graphql
     id: ID!
     email: String!
     username: String!
+    slug: String!
     needPasswordChange: Boolean!
     role: String!
     status: String
@@ -11,19 +12,27 @@ export const userTypeDefs = `#graphql
     lastLogin: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!
+    adminProfile: Admin
+    instructorProfile: Instructor
+    studentProfile: Student
+    orders: [Order]
+    payments: [Payment]
+    enrollments: [Enrollment]
+    userProgress: [UserProgress]
+    certificates: [Certificate]
+    notices: [Notice]
+    quizAttempts: [QuizAttempt]
+    courses: [Course]
   }
 
   type PaginatedUsers {
     users: [User!]!
-    total: Int!
-    page: Int!
-    limit: Int!
-    totalPages: Int!
+    meta: PaginationMeta!
   }
 
   input UserFilterInput {
     role: String
-    status: String
+    emailVerified: Boolean
     search: String
   }
 
@@ -34,24 +43,14 @@ export const userTypeDefs = `#graphql
     sortOrder: SortOrder
   }
 
-  input UpdateProfileInput {
-    username: String
-  }
 
-  input ChangePasswordInput {
-    currentPassword: String!
-    newPassword: String!
-  }
-
-  type Mutation {
-    updateProfile(input: UpdateProfileInput!): User!
-    changePassword(input: ChangePasswordInput!): Boolean!
-  }
+ 
 
   type Query {
-    users(filter: UserFilterInput, pagination: PaginationInput): PaginatedUsers!
+    allUsers(filter: UserFilterInput, pagination: PaginationInput): PaginatedUsers!
     user(id: ID!): User
-    searchUsers(query: String!, limit: Int): [User!]!
-    me: User
+   
   }
+
+  
 `;

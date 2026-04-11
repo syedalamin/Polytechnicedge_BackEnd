@@ -6,9 +6,7 @@ import {
   IPaginatedCategories,
 } from "./category.interface";
 import { calculatePagination } from "../../../utils/pagination";
-import redis from "../../../utils/redis";
 import { generateUniqueSlug } from "../../../utils/slugGenerator";
- 
 
 const createCategory = async (data: ICreateCategory) => {
   const slug = await generateUniqueSlug(data.name, { model: "category" });
@@ -21,18 +19,10 @@ const createCategory = async (data: ICreateCategory) => {
     },
   });
 
-  await redis.del("categories:all");
-
   return result;
 };
 
 const getAllCategories = async (paginationOptions: IPaginationOptions) => {
-  const cacheKey = "categories:all";
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData as IPaginatedCategories;
-  }
-
   const { page, limit, skip, sortBy, sortOrder } =
     calculatePagination(paginationOptions);
 
@@ -42,6 +32,9 @@ const getAllCategories = async (paginationOptions: IPaginationOptions) => {
       take: limit,
       orderBy: {
         [sortBy]: sortOrder,
+      },
+      include: {
+        courses: true,
       },
     }),
     prismaClient.category.count(),
@@ -57,26 +50,16 @@ const getAllCategories = async (paginationOptions: IPaginationOptions) => {
     },
   };
 
-  await redis.set(cacheKey, response, 1800);
-
   return response;
 };
 
-
 const getCategoryBySlug = async (slug: string) => {
-  const cacheKey = `category:slug:${slug}`;
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const result = await prismaClient.category.findUnique({
     where: { slug },
+    include: {
+      courses: true,
+    },
   });
-
-  if (result) {
-    await redis.set(cacheKey, result, 1800);
-  }
 
   return result;
 };
@@ -89,11 +72,6 @@ const updateCategory = async (id: string, data: IUpdateCategory) => {
     },
   });
 
-  await redis.del("categories:all");
-  if (result.slug) {
-    await redis.del(`category:slug:${result.slug}`);
-  }
-
   return result;
 };
 
@@ -102,8 +80,6 @@ const deleteCategory = async (id: string) => {
     where: { id },
   });
 
-  await redis.del("categories:all")
-  await redis.del(`category:slug:${result.slug}`);
   return result;
 };
 

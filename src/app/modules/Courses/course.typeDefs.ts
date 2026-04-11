@@ -13,13 +13,22 @@ export const courseTypeDefs = `#graphql
     level: String!
     categoryId: String!
     category: Category
+    authorId: String
+    author: User
     durationHours: Float
     whatYouWillLearn: [String!]!
     requirements: [String!]!
     prerequisites: [String!]!
     tags: [String!]!
     accessExpiresInDays: Int!
-    # modules: [Module!]
+    modules: [Module!]
+    enrollments: [Enrollment]
+    orderItems: [OrderItem]
+    userProgress: [UserProgress]
+    certificates: [Certificate]
+    notices: [Notice]
+    instructors: [CourseInstructor]
+    bundleItems: [CourseBundleItem]
     createdAt: DateTime!
     updatedAt: DateTime!
   }

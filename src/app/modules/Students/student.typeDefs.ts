@@ -15,9 +15,10 @@ export const studentTypeDefs = `#graphql
     contactNumber1: String
     contactNumber2: String
     educationLevel: String
-    interests: [String!]!
+    interests: [String!]
     dateOfBirth: DateTime
     user: User!
+    sessionBookings: [SessionBooking]
     createdAt: DateTime!
     updatedAt: DateTime!
   }

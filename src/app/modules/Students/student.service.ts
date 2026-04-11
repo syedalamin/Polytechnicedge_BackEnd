@@ -6,7 +6,6 @@ import {
   ICreateStudent,
 } from "./student.interface";
 import { calculatePagination } from "../../../utils/pagination";
-import redis from "../../../utils/redis";
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
 import { UserRole } from "../../../generated/prisma/enums";
@@ -76,7 +75,6 @@ const updateStudentProfile = async (
       dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
     },
   });
-  await redis.del(`students:${result.id}`);
   return result;
 };
 
@@ -84,8 +82,6 @@ const deleteStudentProfile = async (id: string) => {
   const result = await prismaClient.studentProfile.delete({
     where: { id },
   });
-
-  await redis.del(`students:${result.id}`);
 
   return result;
 };
@@ -122,12 +118,6 @@ const getAllStudents = async (
 };
 
 const getStudentProfile = async (id: string) => {
-  const cacheKey = `students:${id}`;
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const result = await prismaClient.studentProfile.findUnique({
     where: { id },
     include: {
@@ -135,9 +125,6 @@ const getStudentProfile = async (id: string) => {
     },
   });
 
-  if (result) {
-    await redis.set(cacheKey, result, 600);
-  }
   return result;
 };
 

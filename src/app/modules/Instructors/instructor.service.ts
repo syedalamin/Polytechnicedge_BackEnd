@@ -10,10 +10,11 @@ import {
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
 import { calculatePagination } from "../../../utils/pagination";
-import redis from "../../../utils/redis";
 import { slugGeneratorUser } from "../../../utils/slugGeneratorUser";
 
-const createInstructor = async (instructorData: ICreateInstructor): Promise<IInstructor> => {
+const createInstructor = async (
+  instructorData: ICreateInstructor,
+): Promise<IInstructor> => {
   const username = await generateUsername(
     instructorData.firstName,
     instructorData.middleName,
@@ -66,14 +67,16 @@ const createInstructor = async (instructorData: ICreateInstructor): Promise<IIns
   return result;
 };
 
-const updateInstructorProfile = async (id: string, data: IUpdateInstructor): Promise<IInstructor> => {
+const updateInstructorProfile = async (
+  id: string,
+  data: IUpdateInstructor,
+): Promise<IInstructor> => {
   const result = await prismaClient.instructorProfile.update({
     where: { id },
     data: {
       ...data,
     },
   });
-  await redis.del(`instructors:${result.id}`);
   return result;
 };
 
@@ -81,19 +84,21 @@ const deleteInstructor = async (id: string): Promise<IInstructor> => {
   const result = await prismaClient.instructorProfile.delete({
     where: { id },
   });
-  await redis.del(`instructors:${result.id}`);
   return result;
 };
 
 const getAllInstructors = async (
   paginationOptions: IPaginationOptions,
 ): Promise<IPaginatedInstructors> => {
-  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(paginationOptions);
+  const { page, limit, skip, sortBy, sortOrder } =
+    calculatePagination(paginationOptions);
 
   const [result, total] = await Promise.all([
     prismaClient.instructorProfile.findMany({
       include: {
         user: true,
+        courseInstructors: true,
+        courses: true,
       },
       skip,
       take: limit,
@@ -115,23 +120,18 @@ const getAllInstructors = async (
   };
 };
 
-const getInstructorProfile = async (id: string): Promise<IInstructor | null> => {
-  const cacheKey = `instructors:${id}`;
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData as IInstructor;
-  }
-
+const getInstructorProfile = async (
+  id: string,
+): Promise<IInstructor | null> => {
   const result = await prismaClient.instructorProfile.findUnique({
     where: { id },
     include: {
       user: true,
+      courseInstructors: true,
+      courses: true,
     },
   });
 
-  if (result) {
-    await redis.set(cacheKey, result, 600);
-  }
   return result;
 };
 

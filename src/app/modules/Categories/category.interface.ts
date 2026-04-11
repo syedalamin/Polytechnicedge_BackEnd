@@ -2,6 +2,7 @@ export interface ICategory {
   id: string;
   name: string;
   slug: string;
+  courses: any[]; // Replace with actual Course type when defined
   description: string | null;
   createdAt: Date;
   updatedAt: Date;

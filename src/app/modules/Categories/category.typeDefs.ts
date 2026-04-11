@@ -4,6 +4,7 @@ export const categoryTypeDefs = `#graphql
     name: String!
     slug: String!
     description: String
+    courses: [Course!]
     createdAt: DateTime!
     updatedAt: DateTime!
   }

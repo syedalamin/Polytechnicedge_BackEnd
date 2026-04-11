@@ -9,7 +9,6 @@ import {
 import { generateUsername } from "../../../utils/generateUsername";
 import { hashPassword } from "../../../utils/hashPassword";
 import { calculatePagination } from "../../../utils/pagination";
-import redis from "../../../utils/redis";
 import { slugGeneratorUser } from "../../../utils/slugGeneratorUser";
 
 const createAdmin = async (adminData: ICreateAdmin) => {
@@ -71,7 +70,6 @@ const updateAdminProfile = async (id: string, data: IUpdateAdmin) => {
       dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
     },
   });
-  await redis.del(`admins:${result.id}`);
   return result;
 };
 
@@ -79,7 +77,6 @@ const deleteAdmin = async (id: string) => {
   const result = await prismaClient.adminProfile.delete({
     where: { id },
   });
-  await redis.del(`admins:${result.id}`);
   return result;
 };
 
@@ -115,12 +112,6 @@ const getAllAdmins = async (
 };
 
 const getAdminProfile = async (id: string) => {
-  const cacheKey = `admins:${id}`;
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const result = await prismaClient.adminProfile.findUnique({
     where: { id },
     include: {
@@ -128,9 +119,6 @@ const getAdminProfile = async (id: string) => {
     },
   });
 
-  if (result) {
-    await redis.set(cacheKey, result, 600);
-  }
   return result;
 };
 

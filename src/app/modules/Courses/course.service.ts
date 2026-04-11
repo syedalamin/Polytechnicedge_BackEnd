@@ -8,7 +8,6 @@ import {
   ICourse,
 } from "./course.interface";
 import { calculatePagination } from "../../../utils/pagination";
-import redis from "../../../utils/redis";
 import { generateUniqueSlug } from "../../../utils/slugGenerator";
 import { Request } from "express";
 
@@ -41,9 +40,6 @@ const createCourse = async (req: Request) => {
     },
   });
 
-  await redis.del("courses:all");
-  await redis.del("courses:featured");
-
   return result;
 };
 
@@ -51,12 +47,6 @@ const getAllCourses = async (
   filter: ICourseFilter,
   paginationOptions: IPaginationOptions,
 ): Promise<IPaginatedCourses> => {
-  const cacheKey = `courses:filter:${JSON.stringify(filter)}:${JSON.stringify(paginationOptions)}`;
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData as IPaginatedCourses;
-  }
-
   const { page, limit, skip, sortBy, sortOrder } =
     calculatePagination(paginationOptions);
 
@@ -87,6 +77,14 @@ const getAllCourses = async (
       where,
       include: {
         category: true,
+        modules: true,
+        enrollments: true,
+        orderItems: true,
+        userProgress: true,
+        certificates: true,
+        notices: true,
+        instructors: true,
+        bundleItems: true,
       },
       skip,
       take: limit,
@@ -107,42 +105,29 @@ const getAllCourses = async (
     },
   };
 
-  await redis.set(cacheKey, response, 600);
-
   return response;
 };
 
 const getCourseBySlug = async (slug: string) => {
-  const cacheKey = `course:slug:${slug}`;
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData;
-  }
-
   const result = await prismaClient.course.findUnique({
     where: { slug },
     include: {
       category: true,
-      modules: {
-        orderBy: { weekNumber: "asc" },
-      },
+      modules: true,
+      enrollments: true,
+      orderItems: true,
+      userProgress: true,
+      certificates: true,
+      notices: true,
+      instructors: true,
+      bundleItems: true,
     },
   });
-
-  if (result) {
-    await redis.set(cacheKey, result, 300);
-  }
 
   return result;
 };
 
 const getFeaturedCourses = async (): Promise<ICourse[]> => {
-  const cacheKey = "courses:featured";
-  const cachedData = await redis.get(cacheKey);
-  if (cachedData) {
-    return cachedData as ICourse[];
-  }
-
   const result = await prismaClient.course.findMany({
     where: {
       isFeatured: true,
@@ -153,8 +138,6 @@ const getFeaturedCourses = async (): Promise<ICourse[]> => {
     },
     take: 10,
   });
-
-  await redis.set(cacheKey, result, 900);
 
   return result;
 };
@@ -167,13 +150,6 @@ const updateCourse = async (id: string, data: IUpdateCourse) => {
     },
   });
 
-  await redis.del("courses:all");
-  await redis.del("courses:featured");
-  
-  if (result.slug) {
-    await redis.del(`course:slug:${result.slug}`);
-  }
-
   return result;
 };
 
@@ -184,13 +160,6 @@ const publishCourse = async (id: string) => {
       isPublished: true,
     },
   });
-
-  await redis.del("courses:all");
-  await redis.del("courses:featured");
-  await redis.del(`course:${id}`);
-  if (result.slug) {
-    await redis.del(`course:slug:${result.slug}`);
-  }
 
   return result;
 };
@@ -203,13 +172,6 @@ const unpublishCourse = async (id: string) => {
     },
   });
 
-  await redis.del("courses:all");
-  await redis.del("courses:featured");
-  await redis.del(`course:${id}`);
-  if (result.slug) {
-    await redis.del(`course:slug:${result.slug}`);
-  }
-
   return result;
 };
 
@@ -217,13 +179,6 @@ const deleteCourse = async (id: string) => {
   const result = await prismaClient.course.delete({
     where: { id },
   });
-
-  await redis.del("courses:all");
-  await redis.del("courses:featured");
- 
-  if (result.slug) {
-    await redis.del(`course:slug:${result.slug}`);
-  }
 
   return result;
 };

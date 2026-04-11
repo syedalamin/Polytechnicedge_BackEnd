@@ -1,9 +1,11 @@
+import prismaClient from "../../../config/prismaClient";
 import { categoryService } from "./category.service";
 import { IPaginationOptions } from "./category.interface";
 import graphqlAuth from "../../middlewares/graphqlAuth";
 import { UserRole } from "../../../generated/prisma/enums";
 
 export const categoryResolvers = {
+ 
   Query: {
     getAllCategories: async (_: any, args: any, context: any) => {
       await graphqlAuth(
