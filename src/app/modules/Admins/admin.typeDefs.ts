@@ -33,9 +33,7 @@ export const adminTypeDefs = `#graphql
   }
 
   type Query {
-    admin(id: ID!): Admin
     getAllAdmins(pagination: PaginationInput): PaginatedAdmins!
-    adminByEmail(email: String!): Admin
     adminProfile(id: ID!): Admin
   }
    
