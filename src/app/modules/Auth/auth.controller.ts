@@ -1,8 +1,9 @@
-
 import { sendResponse } from "../../../Shared/sendResponse";
 import httpStatus from "http-status";
 import { authService } from "./auth.service";
 import catchAsync from "../../../Shared/catchAsync";
+import { auth } from "../../middlewares/auth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 const login = catchAsync(async (req, res) => {
   const result = await authService.login(req.body);

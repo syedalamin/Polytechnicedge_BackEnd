@@ -1,20 +1,20 @@
-import { sendErrorResponse } from "../../Shared/sendErrorResponse";
+import { graphqlErrorResponse } from "../../Shared/graphqlError";
+
  
 
-import httpStatus from "http-status";
 const graphqlAuth = async (context: any, ...allowedRoles: string[]) => {
-  const { req, res } = context;
+  const { req } = context;
+
+  if (!req.user) {
+   graphqlErrorResponse("You are not authorized, please login", "UNAUTHORIZED");
+  }
+
   const userRole = req.user.role;
   if (!allowedRoles.includes(userRole)) {
-    sendErrorResponse(
-      res,
-      httpStatus.FORBIDDEN,
-      "You do not have permission to access this resource",
-      null,
-    );
-  } else {
-    return true;
+    graphqlErrorResponse("You do not have permission to perform this action", "FORBIDDEN");
   }
+
+  return true;
 };
 
 export default graphqlAuth;

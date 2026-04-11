@@ -1,21 +1,21 @@
 import { verifyToken } from "../../lib/generateToken";
-import { sendResponse } from "../../Shared/sendResponse";
-import httpStatus from "http-status";
+import { graphqlErrorResponse } from "../../Shared/graphqlError";
+
 const graphqlContext = async ({ req, res }: { req: any; res: any }) => {
   const token = req.cookies?.token;
-  
+
   if (!token) {
-    return sendResponse(
-      res,
-      httpStatus.UNAUTHORIZED,
-      "You are now authorized to access this resource, please login",
-      null,
+    graphqlErrorResponse(
+      "You are not authorized, please login",
+      "UNAUTHORIZED",
     );
   }
+
   const decoded = verifyToken(token);
   if (!decoded) {
-    return sendResponse(res, httpStatus.UNAUTHORIZED, "Invalid token", null);
+    graphqlErrorResponse("Invalid token", "UNAUTHORIZED");
   }
+
   req.user = decoded;
   return { req, res };
 };
