@@ -1,11 +1,11 @@
 import { courseService } from "./course.service";
 import { IPaginationOptions } from "./course.interface";
- 
+import { UserRole } from "../../../Shared/enums";
+import graphqlAuth from "../../middlewares/graphqlAuth";
 
 export const courseResolvers = {
   Query: {
     allCourses: async (_: any, args: any) => {
-      
       const filter = args.filter || {};
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
@@ -16,12 +16,10 @@ export const courseResolvers = {
       return await courseService.getAllCourses(filter, paginationOptions);
     },
     course: async (_: any, { slug }: { slug: string }) => {
-
       return await courseService.getCourseBySlug(slug);
     },
     featuredCourses: async () => {
       return await courseService.getFeaturedCourses();
     },
   },
-
 };

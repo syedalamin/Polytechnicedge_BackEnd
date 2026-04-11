@@ -21,13 +21,13 @@ router.patch(
   courseController.updateCourse,
 );
 
-router.post(
+router.patch(
   "/:id/publish",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   courseController.publishCourse,
 );
 
-router.post(
+router.patch(
   "/:id/unpublish",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   courseController.unpublishCourse,

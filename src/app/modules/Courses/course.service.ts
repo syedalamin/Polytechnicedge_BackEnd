@@ -169,7 +169,7 @@ const updateCourse = async (id: string, data: IUpdateCourse) => {
 
   await redis.del("courses:all");
   await redis.del("courses:featured");
-  await redis.del(`course:${id}`);
+  
   if (result.slug) {
     await redis.del(`course:slug:${result.slug}`);
   }
@@ -220,7 +220,7 @@ const deleteCourse = async (id: string) => {
 
   await redis.del("courses:all");
   await redis.del("courses:featured");
-  await redis.del(`course:${id}`);
+ 
   if (result.slug) {
     await redis.del(`course:slug:${result.slug}`);
   }
