@@ -9,20 +9,21 @@ const router = Router();
 
 router.post(
   "/create-student",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(studentsValidation.createStudentValidation),
   studentsController.createStudentProfile,
 );
 
 router.put(
   "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(studentsValidation.updateStudentValidation),
   studentsController.updateStudentProfile,
 );
 
 router.delete(
   "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   studentsController.deleteStudentProfile,
 );
 

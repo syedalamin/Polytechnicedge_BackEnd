@@ -1,11 +1,11 @@
 import prismaClient from "../../../config/prismaClient";
+import { calculatePagination } from "../../../utils/pagination";
 import {
   IUserFilter,
   IPaginationOptions,
   IPaginatedUsers,
+  IUser,
 } from "./user.interface";
-import { calculatePagination } from "../../../utils/pagination";
-
 
 const getAllUsers = async (
   filter: IUserFilter,
@@ -66,10 +66,7 @@ const getUserById = async (id: string) => {
   return result;
 };
 
-
-
 export const userService = {
   getAllUsers,
   getUserById,
- 
 };

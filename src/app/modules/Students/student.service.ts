@@ -96,6 +96,7 @@ const getAllStudents = async (
     prismaClient.studentProfile.findMany({
       include: {
         user: true,
+        sessionBookings: true,
       },
       skip,
       take: limit,
@@ -122,6 +123,7 @@ const getStudentProfile = async (id: string) => {
     where: { id },
     include: {
       user: true,
+      sessionBookings: true,
     },
   });
 

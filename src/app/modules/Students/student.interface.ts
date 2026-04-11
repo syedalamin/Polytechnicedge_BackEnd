@@ -14,6 +14,7 @@ export interface IStudentProfile {
   educationLevel?: string | null;
   interests: string[];
   dateOfBirth?: Date | null;
+  sessionBookings?: any[]; // Replace with actual type if available
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
