@@ -59,6 +59,11 @@ const createInstructor = async (
         profileImage: instructorData.profileImage || null,
         backgroundImage: instructorData.backgroundImage || null,
       },
+      include: {
+        user: true,
+        courseInstructors: true,
+        sessions: true,
+      },
     });
 
     return instructor;
@@ -76,6 +81,11 @@ const updateInstructorProfile = async (
     data: {
       ...data,
     },
+    include: {
+      user: true,
+      courseInstructors: true,
+      sessions: true,
+    },
   });
   return result;
 };
@@ -83,6 +93,11 @@ const updateInstructorProfile = async (
 const deleteInstructor = async (id: string): Promise<IInstructor> => {
   const result = await prismaClient.instructorProfile.delete({
     where: { id },
+    include: {
+      user: true,
+      courseInstructors: true,
+      sessions: true,
+    },
   });
   return result;
 };
@@ -98,7 +113,7 @@ const getAllInstructors = async (
       include: {
         user: true,
         courseInstructors: true,
-        courses: true,
+        sessions: true,
       },
       skip,
       take: limit,
@@ -128,7 +143,7 @@ const getInstructorProfile = async (
     include: {
       user: true,
       courseInstructors: true,
-      courses: true,
+      sessions: true,
     },
   });
 

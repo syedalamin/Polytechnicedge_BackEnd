@@ -1,4 +1,4 @@
-import prismaClient from "../../../config/prismaClient";
+ 
 import { instructorService } from "./instructor.service";
 import { IPaginationOptions } from "../../../utils/pagination";
 import graphqlAuth from "../../middlewares/graphqlAuth";
@@ -15,21 +15,7 @@ export interface PaginationArgs {
 }
 
 export const instructorResolvers = {
-  Instructor: {
-    sessions: async (parent: any) => {
-      if (parent.sessions) return parent.sessions;
-      return await prismaClient.session.findMany({
-        where: { instructorId: parent.id },
-      });
-    },
-    courseInstructors: async (parent: any) => {
-      if (parent.courseInstructors) return parent.courseInstructors;
-      return await prismaClient.courseInstructor.findMany({
-        where: { instructorId: parent.id },
-        include: { course: true },
-      });
-    },
-  },
+  
   Query: {
     getAllInstructors: async (
       _: unknown,

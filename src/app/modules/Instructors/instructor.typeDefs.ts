@@ -67,54 +67,11 @@ export const instructorTypeDefs = `#graphql
   }
 
   type Query {
-    instructor(id: ID!): Instructor
+     
     getAllInstructors(pagination: PaginationInput): PaginatedInstructors!
     instructorProfile(id: ID!): Instructor
   }
 
-  type Mutation {
-    createInstructor(input: CreateInstructorInput!): Instructor!
-    updateInstructor(id: ID!, input: UpdateInstructorInput!): Instructor!
-    deleteInstructor(id: ID!): Instructor!
-  }
-
-  input CreateInstructorInput {
-    email: String!
-    password: String!
-    firstName: String!
-    middleName: String
-    lastName: String!
-    bio: String
-    address: String
-    gender: String
-    dateOfBirth: DateTime
-    expertise: [String!]
-    qualification: String
-    experienceYears: Int
-    linkedin: String
-    website: String
-    contactNumber1: String
-    contactNumber2: String
-    profileImage: String
-    backgroundImage: String
-  }
-
-  input UpdateInstructorInput {
-    firstName: String
-    middleName: String
-    lastName: String
-    bio: String
-    address: String
-    gender: String
-    dateOfBirth: DateTime
-    expertise: [String!]
-    qualification: String
-    experienceYears: Int
-    linkedin: String
-    website: String
-    contactNumber1: String
-    contactNumber2: String
-    profileImage: String
-    backgroundImage: String
-  }
+ 
+ 
 `;

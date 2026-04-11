@@ -23,6 +23,9 @@ export interface IInstructor {
   suspendedReason?: string | null;
   settings?: any;
   suspendedAt?: Date | null;
+  courseInstructors?: any[];
+  sessions?: any[];
+  user: any;
   deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
