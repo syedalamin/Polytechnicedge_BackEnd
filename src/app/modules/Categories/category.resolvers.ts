@@ -8,6 +8,7 @@ export const categoryResolvers = {
  
   Query: {
     getAllCategories: async (_: any, args: any, context: any) => {
+      
       await graphqlAuth(
         context,
         UserRole.SUPER_ADMIN,
