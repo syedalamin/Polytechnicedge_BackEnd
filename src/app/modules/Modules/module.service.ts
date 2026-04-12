@@ -58,6 +58,8 @@ const getAllModules = async (
       where,
       include: {
         course: true,
+        contents: true,
+        quizzes: true,
       },
       skip,
       take: limit,
@@ -79,18 +81,7 @@ const getAllModules = async (
   };
 };
 
-const getModuleById = async (id: string) => {
-  const result = await prismaClient.module.findUnique({
-    where: { id },
-    include: {
-      course: true,
-      contents: true,
-      quizzes: true,
-    },
-  });
-
-  return result;
-};
+ 
 
 const getModuleBySlug = async (slug: string) => {
   const result = await prismaClient.module.findFirst({
@@ -105,19 +96,7 @@ const getModuleBySlug = async (slug: string) => {
   return result;
 };
 
-const getModulesByCourseId = async (courseId: string) => {
-  const result = await prismaClient.module.findMany({
-    where: { courseId },
-    include: {
-      contents: true,
-      quizzes: true,
-    },
-    orderBy: { weekNumber: "asc" },
-  });
-
-  return result;
-};
-
+ 
 const updateModule = async (id: string, data: IUpdateModule) => {
   const existingModule = await prismaClient.module.findUnique({
     where: { id },
@@ -158,9 +137,9 @@ const deleteModule = async (id: string) => {
 export const moduleService = {
   createModule,
   getAllModules,
-  getModuleById,
+ 
   getModuleBySlug,
-  getModulesByCourseId,
+ 
   updateModule,
   deleteModule,
 };

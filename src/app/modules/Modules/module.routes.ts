@@ -8,17 +8,13 @@ import { UserRole } from "../../../generated/prisma/enums";
 const router = Router();
 
 router.post(
-  "/",
+  "/create-module",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validateRequest(moduleValidation.createModuleValidation),
   moduleController.createModule,
 );
 
-router.get("/", moduleController.getAllModules);
-
-router.get("/course/:courseId", moduleController.getModulesByCourseId);
-
-router.get("/:id", moduleController.getModuleById);
+ 
 
 router.patch(
   "/:id",

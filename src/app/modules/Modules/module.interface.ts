@@ -6,6 +6,8 @@ export interface IModule {
   slug: string;
   textInstruction: string | null;
   estimatedDuration: number;
+  contents: any[];
+  quizzes: any[];
   createdAt: Date;
   updatedAt: Date;
 }

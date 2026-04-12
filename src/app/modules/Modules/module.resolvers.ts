@@ -1,25 +1,19 @@
 import prismaClient from "../../../config/prismaClient";
 import { moduleService } from "./module.service";
 import { IPaginationOptions } from "./module.interface";
+import graphqlAuth from "../../middlewares/graphqlAuth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 export const moduleResolvers = {
-  Module: {
-    contents: async (parent: any) => {
-      if (parent.contents) return parent.contents;
-      return await prismaClient.content.findMany({
-        where: { moduleId: parent.id },
-        orderBy: { createdAt: "asc" },
-      });
-    },
-    quizzes: async (parent: any) => {
-      if (parent.quizzes) return parent.quizzes;
-      return await prismaClient.quiz.findMany({
-        where: { moduleId: parent.id },
-      });
-    },
-  },
   Query: {
-    allModules: async (_: any, args: any) => {
+    allModules: async (_: any, args: any, context: any) => {
+      graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
       const filter = args.filter || {};
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
@@ -29,14 +23,16 @@ export const moduleResolvers = {
       };
       return await moduleService.getAllModules(filter, paginationOptions);
     },
-    module: async (_: any, { id }: { id: string }) => {
-      return await moduleService.getModuleById(id);
-    },
-    moduleBySlug: async (_: any, { slug }: { slug: string }) => {
+
+    moduleBySlug: async (_: any, { slug }: { slug: string }, context: any) => {
+      graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
       return await moduleService.getModuleBySlug(slug);
-    },
-    modulesByCourseId: async (_: any, { courseId }: { courseId: string }) => {
-      return await moduleService.getModulesByCourseId(courseId);
     },
   },
 };
