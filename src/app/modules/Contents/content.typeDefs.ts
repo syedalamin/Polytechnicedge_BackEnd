@@ -16,9 +16,7 @@ export const contentTypeDefs = `#graphql
 
   type Query {
     allContents(filter: ContentFilterInput, pagination: PaginationInput): PaginatedContents!
-    content(id: ID): Content
     contentBySlug(slug: String): Content
-    contentsByModuleId(moduleId: String!): [Content!]!
   }
 
   input ContentFilterInput {

@@ -1,9 +1,19 @@
 import { contentService } from "./content.service";
 import { IPaginationOptions } from "./content.interface";
 
+import graphqlAuth from "../../middlewares/graphqlAuth";
+import { UserRole } from "../../../generated/prisma/enums";
+
 export const contentResolvers = {
   Query: {
-    allContents: async (_: any, args: any) => {
+    allContents: async (_: any, args: any, context: any) => {
+      graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
       const filter = args.filter || {};
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
@@ -13,14 +23,16 @@ export const contentResolvers = {
       };
       return await contentService.getAllContents(filter, paginationOptions);
     },
-    content: async (_: any, { id }: { id: string }) => {
-      return await contentService.getContentById(id);
-    },
-    contentBySlug: async (_: any, { slug }: { slug: string }) => {
+
+    contentBySlug: async (_: any, { slug }: { slug: string }, context: any) => {
+      graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
       return await contentService.getContentBySlug(slug);
-    },
-    contentsByModuleId: async (_: any, { moduleId }: { moduleId: string }) => {
-      return await contentService.getContentsByModuleId(moduleId);
     },
   },
 };

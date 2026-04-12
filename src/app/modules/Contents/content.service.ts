@@ -85,20 +85,7 @@ const getAllContents = async (
   };
 };
 
-const getContentById = async (id: string) => {
-  const result = await prismaClient.content.findUnique({
-    where: { id },
-    include: {
-      module: {
-        include: {
-          course: true,
-        },
-      },
-    },
-  });
 
-  return result;
-};
 
 const getContentBySlug = async (slug: string) => {
   const result = await prismaClient.content.findFirst({
@@ -115,14 +102,7 @@ const getContentBySlug = async (slug: string) => {
   return result;
 };
 
-const getContentsByModuleId = async (moduleId: string) => {
-  const result = await prismaClient.content.findMany({
-    where: { moduleId },
-    orderBy: { createdAt: "asc" },
-  });
 
-  return result;
-};
 
 const updateContent = async (id: string, data: IUpdateContent) => {
   const existingContent = await prismaClient.content.findUnique({
@@ -172,9 +152,7 @@ const deleteContent = async (id: string) => {
 export const contentService = {
   createContent,
   getAllContents,
-  getContentById,
   getContentBySlug,
-  getContentsByModuleId,
   updateContent,
   deleteContent,
 };

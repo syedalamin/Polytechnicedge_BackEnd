@@ -11,7 +11,7 @@ const createContentValidation = z.object({
     contentType: z.nativeEnum(ContentType, {
       message: "Invalid content type",
     }),
-    contentUrl: z.string().url().optional(),
+    contentUrl: z.url().optional(),
     textContent: z.string().optional(),
     isLocked: z.boolean().optional(),
     duration: z.number().int().positive().optional(),
@@ -26,7 +26,7 @@ const updateContentValidation = z.object({
       .max(200, { message: "Content title cannot exceed 200 characters" })
       .optional(),
     contentType: z.nativeEnum(ContentType).optional(),
-    contentUrl: z.string().url().optional(),
+    contentUrl: z.url().optional(),
     textContent: z.string().optional(),
     isLocked: z.boolean().optional(),
     duration: z.number().int().positive().optional(),
