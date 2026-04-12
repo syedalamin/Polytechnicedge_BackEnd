@@ -34,7 +34,7 @@ export const courseTypeDefs = `#graphql
   }
 
   type PaginatedCourses {
-    courses: [Course!]!
+    courses: [Course!]
     meta: PaginationMeta!
   }
 
