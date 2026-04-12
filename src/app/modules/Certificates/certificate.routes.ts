@@ -7,11 +7,7 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-router.post("/", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), validateRequest(certificateValidation.createCertificateValidation), certificateController.createCertificate);
-router.get("/", certificateController.getAllCertificates);
-router.get("/user/:userId", certificateController.getCertificatesByUserId);
-router.get("/course/:courseId", certificateController.getCertificatesByCourseId);
-router.get("/:id", certificateController.getCertificateById);
+router.post("/create-certificate", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), validateRequest(certificateValidation.createCertificateValidation), certificateController.createCertificate);
 router.delete("/:id", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), certificateController.deleteCertificate);
 
 export const certificateRoutes = router;
