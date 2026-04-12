@@ -23,7 +23,9 @@ const createEnrollment = async (data: ICreateEnrollment) => {
     data: {
       userId: data.userId,
       courseId: data.courseId,
+      orderItemId: data.orderItemId || null,
       status: EnrollmentStatus.ACTIVE,
+      enrolledAt: new Date(),
       expiresAt,
     },
   });
@@ -44,7 +46,7 @@ const getAllEnrollments = async (
   const [result, total] = await Promise.all([
     prismaClient.enrollment.findMany({
       where,
-      include: { user: true, course: true },
+      include: { user: true, course: true, orderItem: true },
       skip,
       take: limit,
       orderBy: { [sortBy]: sortOrder },
@@ -58,7 +60,7 @@ const getAllEnrollments = async (
 const getEnrollmentById = async (id: string) => {
   const result = await prismaClient.enrollment.findUnique({
     where: { id },
-    include: { user: true, course: true },
+    include: { user: true, course: true, orderItem: true },
   });
 
   return result;
@@ -67,7 +69,7 @@ const getEnrollmentById = async (id: string) => {
 const getEnrollmentsByUserId = async (userId: string) => {
   const result = await prismaClient.enrollment.findMany({
     where: { userId },
-    include: { course: true },
+    include: { course: true, orderItem: true },
     orderBy: { enrolledAt: "desc" },
   });
 
@@ -77,7 +79,7 @@ const getEnrollmentsByUserId = async (userId: string) => {
 const getEnrollmentsByCourseId = async (courseId: string) => {
   const result = await prismaClient.enrollment.findMany({
     where: { courseId },
-    include: { user: true },
+    include: { user: true, orderItem: true },
     orderBy: { enrolledAt: "desc" },
   });
 

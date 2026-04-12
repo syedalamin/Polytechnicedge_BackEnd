@@ -10,10 +10,23 @@ export interface IOrder {
   updatedAt: Date;
 }
 
+export interface IOrderItem {
+  id: string;
+  orderId: string;
+  courseId: string | null;
+  course: any;
+  bundleId: string | null;
+  bundle: any;
+  price: any;
+  enrollments: any[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ICreateOrder {
   userId: string;
   totalAmount: number;
-  items: { courseId: string; price: number }[];
+  items: { courseId?: string; bundleId?: string; price: number }[];
 }
 
 export interface IUpdateOrder {

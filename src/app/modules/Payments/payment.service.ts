@@ -42,7 +42,7 @@ const getAllPayments = async (
   const [result, total] = await Promise.all([
     prismaClient.payment.findMany({
       where,
-      include: { user: true, order: true },
+      include: { user: true, order: { include: { items: true } } },
       skip,
       take: limit,
       orderBy: { [sortBy]: sortOrder },
@@ -56,7 +56,7 @@ const getAllPayments = async (
 const getPaymentById = async (id: string) => {
   const result = await prismaClient.payment.findUnique({
     where: { id },
-    include: { user: true, order: true },
+    include: { user: true, order: { include: { items: true } } },
   });
 
   return result;
@@ -65,7 +65,7 @@ const getPaymentById = async (id: string) => {
 const getPaymentByOrderId = async (orderId: string) => {
   const result = await prismaClient.payment.findUnique({
     where: { orderId },
-    include: { user: true, order: true },
+    include: { user: true, order: { include: { items: true } } },
   });
 
   return result;

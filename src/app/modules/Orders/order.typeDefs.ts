@@ -16,9 +16,12 @@ export const orderTypeDefs = `#graphql
     id: ID!
     orderId: String!
     order: Order
-    courseId: String!
+    courseId: String
     course: Course
+    bundleId: String
+    bundle: CourseBundle
     price: Float!
+    enrollments: [Enrollment!]
     createdAt: DateTime!
     updatedAt: DateTime!
   }

@@ -17,10 +17,19 @@ const createOrder = async (data: ICreateOrder) => {
     });
 
     for (const item of data.items) {
+      if (item.bundleId) {
+        const bundle = await tx.courseBundle.findUnique({ where: { id: item.bundleId } });
+        if (!bundle) throw new Error("Bundle not found");
+      } else if (item.courseId) {
+        const course = await tx.course.findUnique({ where: { id: item.courseId } });
+        if (!course) throw new Error("Course not found");
+      }
+
       await tx.orderItem.create({
         data: {
           orderId: order.id,
-          courseId: item.courseId,
+          ...(item.courseId && { courseId: item.courseId }),
+          ...(item.bundleId && { bundleId: item.bundleId }),
           price: item.price,
         },
       });
@@ -44,7 +53,7 @@ const getAllOrders = async (
   const [result, total] = await Promise.all([
     prismaClient.order.findMany({
       where,
-      include: { user: true, items: { include: { course: true } }, payment: true },
+      include: { user: true, items: { include: { course: true, bundle: true } }, payment: true },
       skip,
       take: limit,
       orderBy: { [sortBy]: sortOrder },
@@ -58,7 +67,7 @@ const getAllOrders = async (
 const getOrderById = async (id: string) => {
   const result = await prismaClient.order.findUnique({
     where: { id },
-    include: { user: true, items: { include: { course: true } }, payment: true },
+    include: { user: true, items: { include: { course: true, bundle: true } }, payment: true },
   });
 
   return result;
@@ -67,7 +76,7 @@ const getOrderById = async (id: string) => {
 const getOrdersByUserId = async (userId: string) => {
   const result = await prismaClient.order.findMany({
     where: { userId },
-    include: { items: { include: { course: true } }, payment: true },
+    include: { items: { include: { course: true, bundle: true } }, payment: true },
     orderBy: { createdAt: "desc" },
   });
 

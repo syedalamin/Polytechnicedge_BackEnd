@@ -370,18 +370,19 @@ model QuizAttemptSubmission {
 }
 
 model UserProgress {
-  id           String    @id @default(uuid())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id])
-  courseId     String
-  course       Course    @relation(fields: [courseId], references: [id])
-  progress     Float     @default(0)
-  isCompleted  Boolean   @default(false)
-  completedContents  String[] @default([])
-  lastAccessed DateTime?
-  completedAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  courseId          String
+  course            Course    @relation(fields: [courseId], references: [id])
+  progress          Float     @default(0)
+  isCompleted       Boolean   @default(false)
+  completedContents String[]  @default([])
+  lastAccessed      DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
   @@unique([userId, courseId])
   @@map("user_progress")
 }
@@ -400,20 +401,6 @@ model Certificate {
   @@map("certificates")
 }
 
-model Enrollment {
-  id         String           @id @default(uuid())
-  userId     String
-  user       User             @relation(fields: [userId], references: [id])
-  courseId   String
-  course     Course           @relation(fields: [courseId], references: [id])
-  status     EnrollmentStatus @default(PENDING)
-  enrolledAt DateTime         @default(now())
-  expiresAt  DateTime?
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-
-  @@map("enrollments")
-}
 
 model Order {
   id            String      @id @default(uuid())
@@ -433,33 +420,20 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id])
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id])
-  price     Decimal  @db.Decimal(10, 2)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String        @id @default(uuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id])
+  courseId    String?
+  course      Course?       @relation(fields: [courseId], references: [id])
+  bundleId    String?
+  bundle      CourseBundle? @relation(fields: [bundleId], references: [id])
+  price       Decimal       @db.Decimal(10, 2)
+  // Enrollment লিঙ্ক (Bundle হলে একাধিক enrollment হবে)
+  enrollments Enrollment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@map("order_items")
-}
-
-model Payment {
-  id            String        @id @default(uuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  orderId       String        @unique
-  order         Order         @relation(fields: [orderId], references: [id])
-  amount        Decimal       @db.Decimal(10, 2)
-  transactionId String
-  paymentMethod String
-  status        PaymentStatus @default(PENDING)
-  paidAt        DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@map("payments")
 }
 
 model CourseBundle {
@@ -473,7 +447,8 @@ model CourseBundle {
   updatedAt   DateTime @updatedAt
 
   // Relações
-  items CourseBundleItem[]
+  items      CourseBundleItem[]
+  orderItems OrderItem[]
 
   @@map("course_bundles")
 }
@@ -484,12 +459,50 @@ model CourseBundleItem {
   bundle    CourseBundle @relation(fields: [bundleId], references: [id])
   courseId  String
   course    Course       @relation(fields: [courseId], references: [id])
-  price     Decimal      @db.Decimal(10, 2)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
+  priceAtBundleTime Decimal @db.Decimal(10, 2)    
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([bundleId, courseId])
   @@map("course_bundle_items")
 }
+
+model Payment {
+  id      String @id @default(uuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  amount        Decimal       @db.Decimal(10, 2)
+  transactionId String        @unique
+  paymentMethod String
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model Enrollment {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  courseId    String
+  course      Course            @relation(fields: [courseId], references: [id])
+  orderItemId String?
+  orderItem   OrderItem?        @relation(fields: [orderItemId], references: [id])
+  status      EnrollmentStatus  @default(PENDING)
+  enrolledAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+
+
 
 model Session {
   id               String            @id @default(uuid())

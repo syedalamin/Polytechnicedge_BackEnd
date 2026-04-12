@@ -13,6 +13,13 @@ export interface IPayment {
   updatedAt: Date;
 }
 
+export interface IPaymentWithOrder extends IPayment {
+  order: {
+    id: string;
+    items: any[];
+  };
+}
+
 export interface ICreatePayment {
   userId: string;
   orderId: string;

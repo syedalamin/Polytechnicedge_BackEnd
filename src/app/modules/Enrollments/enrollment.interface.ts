@@ -4,6 +4,7 @@ export interface IEnrollment {
   id: string;
   userId: string;
   courseId: string;
+  orderItemId: string | null;
   status: EnrollmentStatus;
   enrolledAt: Date;
   expiresAt: Date | null;
@@ -14,6 +15,7 @@ export interface IEnrollment {
 export interface ICreateEnrollment {
   userId: string;
   courseId: string;
+  orderItemId?: string;
   expiresAt?: Date;
 }
 

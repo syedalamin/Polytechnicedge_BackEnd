@@ -23,7 +23,7 @@ const createCourseBundle = async (data: ICreateCourseBundle) => {
           data: {
             bundleId: bundle.id,
             courseId: item.courseId,
-            price: item.price,
+            priceAtBundleTime: item.priceAtBundleTime,
           },
         });
       }

@@ -17,7 +17,7 @@ export const courseBundleTypeDefs = `#graphql
     bundle: CourseBundle
     courseId: String!
     course: Course
-    price: Float!
+    priceAtBundleTime: Float!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

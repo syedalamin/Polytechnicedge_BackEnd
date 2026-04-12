@@ -1,3 +1,12 @@
+export interface ICourseBundleItem {
+  id: string;
+  bundleId: string;
+  courseId: string;
+  priceAtBundleTime: any;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ICourseBundle {
   id: string;
   title: string;
@@ -5,6 +14,7 @@ export interface ICourseBundle {
   description: string;
   price: any;
   isPublished: boolean;
+  items: ICourseBundleItem[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,7 +24,7 @@ export interface ICreateCourseBundle {
   description: string;
   price: number;
   isPublished?: boolean;
-  items?: { courseId: string; price: number }[];
+  items?: { courseId: string; priceAtBundleTime: number }[];
 }
 
 export interface IUpdateCourseBundle {
