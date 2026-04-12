@@ -87,16 +87,6 @@ const getAllCourseInstructors = async (
   };
 };
 
-const getCourseInstructorsByCourseId = async (courseId: string) => {
-  const result = await prismaClient.courseInstructor.findMany({
-    where: { courseId },
-    include: {
-      instructor: true,
-    },
-  });
-
-  return result;
-};
 
 const getCourseInstructorById = async (id: string) => {
   const result = await prismaClient.courseInstructor.findUnique({
@@ -131,6 +121,5 @@ export const courseInstructorService = {
   createCourseInstructor,
   getAllCourseInstructors,
   getCourseInstructorById,
-  getCourseInstructorsByCourseId,
   deleteCourseInstructor,
 };

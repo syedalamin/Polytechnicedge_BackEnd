@@ -11,7 +11,7 @@ export const courseInstructorTypeDefs = `#graphql
   type Query {
     allCourseInstructors(filter: CourseInstructorFilterInput, pagination: PaginationInput): PaginatedCourseInstructors!
     courseInstructor(id: ID): CourseInstructor
-    courseInstructorsByCourseId(courseId: String!): [CourseInstructor!]!
+ 
   }
 
   input CourseInstructorFilterInput {

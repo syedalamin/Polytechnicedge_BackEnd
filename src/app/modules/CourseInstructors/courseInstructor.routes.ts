@@ -8,18 +8,13 @@ import { UserRole } from "../../../generated/prisma/enums";
 const router = Router();
 
 router.post(
-  "/",
+  "/create-course-instructor",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   validateRequest(courseInstructorValidation.createCourseInstructorValidation),
   courseInstructorController.createCourseInstructor,
 );
 
-router.get("/", courseInstructorController.getAllCourseInstructors);
-
-router.get("/course/:courseId", courseInstructorController.getCourseInstructorsByCourseId);
-
-router.get("/:id", courseInstructorController.getCourseInstructorById);
-
+ 
 router.delete(
   "/:id",
   auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),

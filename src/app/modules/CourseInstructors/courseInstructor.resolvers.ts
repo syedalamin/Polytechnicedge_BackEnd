@@ -1,9 +1,12 @@
 import { courseInstructorService } from "./courseInstructor.service";
 import { IPaginationOptions } from "./courseInstructor.interface";
+import graphqlAuth from "../../middlewares/graphqlAuth";
+import { UserRole } from "../../../generated/prisma/enums";
 
 export const courseInstructorResolvers = {
   Query: {
-    allCourseInstructors: async (_: any, args: any) => {
+    allCourseInstructors: async (_: any, args: any, context: any) => {
+      graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN);
       const filter = args.filter || {};
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
@@ -16,16 +19,9 @@ export const courseInstructorResolvers = {
         paginationOptions,
       );
     },
-    courseInstructor: async (_: any, { id }: { id: string }) => {
+    courseInstructor: async (_: any, { id }: { id: string }, context: any) => {
+      graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN);
       return await courseInstructorService.getCourseInstructorById(id);
-    },
-    courseInstructorsByCourseId: async (
-      _: any,
-      { courseId }: { courseId: string },
-    ) => {
-      return await courseInstructorService.getCourseInstructorsByCourseId(
-        courseId,
-      );
     },
   },
 };
