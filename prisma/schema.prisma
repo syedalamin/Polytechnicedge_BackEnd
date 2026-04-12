@@ -377,11 +377,12 @@ model UserProgress {
   course       Course    @relation(fields: [courseId], references: [id])
   progress     Float     @default(0)
   isCompleted  Boolean   @default(false)
+  completedContents  String[] @default([])
   lastAccessed DateTime?
   completedAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-
+  @@unique([userId, courseId])
   @@map("user_progress")
 }
 

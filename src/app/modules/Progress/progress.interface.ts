@@ -4,6 +4,7 @@ export interface IUserProgress {
   courseId: string;
   progress: number;
   isCompleted: boolean;
+  completedContents: string[];
   lastAccessed: Date | null;
   completedAt: Date | null;
   createdAt: Date;
@@ -17,10 +18,10 @@ export interface ICreateUserProgress {
 }
 
 export interface IUpdateUserProgress {
-  progress?: number;
-  isCompleted?: boolean;
-  lastAccessed?: Date;
-  completedAt?: Date;
+  userId: string,
+  courseId: string,
+  contentId: string,      
+  isCompleted: boolean
 }
 
 export interface IUserProgressFilter {

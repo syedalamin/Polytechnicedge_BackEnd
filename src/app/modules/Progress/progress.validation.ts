@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 
 const createUserProgressValidation = z.object({
   body: z.object({
@@ -10,14 +10,24 @@ const createUserProgressValidation = z.object({
 
 const updateUserProgressValidation = z.object({
   body: z.object({
-    progress: z.number().min(0).max(100).optional(),
-    isCompleted: z.boolean().optional(),
-    lastAccessed: z.string().optional(),
-    completedAt: z.string().optional(),
+    userId: z.uuid(),
+    courseId: z.uuid(),
+    contentId: z.uuid(),
+    isCompleted: z.boolean(),
   }),
 });
+
+const markCourseCompleteValidation = z.object({ 
+  body: z.object({
+    courseId: z.string().min(1, { message: "Course ID is required" }),
+  }),
+});
+
+
 
 export const userProgressValidation = {
   createUserProgressValidation,
   updateUserProgressValidation,
+  markCourseCompleteValidation,
 };
+  

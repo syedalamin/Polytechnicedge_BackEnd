@@ -1,5 +1,11 @@
 import prismaClient from "../../../config/prismaClient";
-import { ICreateUserProgress, IUpdateUserProgress, IUserProgressFilter, IPaginationOptions, IPaginatedUserProgress } from "./progress.interface";
+import {
+  ICreateUserProgress,
+  IUpdateUserProgress,
+  IUserProgressFilter,
+  IPaginationOptions,
+  IPaginatedUserProgress,
+} from "./progress.interface";
 import { calculatePagination } from "../../../utils/pagination";
 
 const createUserProgress = async (data: ICreateUserProgress) => {
@@ -14,7 +20,8 @@ const createUserProgress = async (data: ICreateUserProgress) => {
   const existing = await prismaClient.userProgress.findFirst({
     where: { userId: data.userId, courseId: data.courseId },
   });
-  if (existing) throw new Error("Progress already exists for this user and course");
+  if (existing)
+    throw new Error("Progress already exists for this user and course");
 
   const result = await prismaClient.userProgress.create({
     data: {
@@ -33,7 +40,8 @@ const getAllUserProgress = async (
   filter: IUserProgressFilter,
   paginationOptions: IPaginationOptions,
 ): Promise<IPaginatedUserProgress> => {
-  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(paginationOptions);
+  const { page, limit, skip, sortBy, sortOrder } =
+    calculatePagination(paginationOptions);
   const where: any = {};
   if (filter.userId) where.userId = filter.userId;
   if (filter.courseId) where.courseId = filter.courseId;
@@ -49,7 +57,10 @@ const getAllUserProgress = async (
     prismaClient.userProgress.count({ where }),
   ]);
 
-  return { progressList: result, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+  return {
+    progressList: result,
+    meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 const getUserProgressById = async (id: string) => {
@@ -81,7 +92,10 @@ const getUserProgressByCourseId = async (courseId: string) => {
   return result;
 };
 
-const getUserProgressByUserAndCourse = async (userId: string, courseId: string) => {
+const getUserProgressByUserAndCourse = async (
+  userId: string,
+  courseId: string,
+) => {
   const result = await prismaClient.userProgress.findFirst({
     where: { userId, courseId },
     include: { user: true, course: true },
@@ -90,23 +104,91 @@ const getUserProgressByUserAndCourse = async (userId: string, courseId: string) 
   return result;
 };
 
-const updateUserProgress = async (id: string, data: IUpdateUserProgress) => {
-  const existing = await prismaClient.userProgress.findUnique({ where: { id } });
-  if (!existing) throw new Error("User progress not found");
+const updateUserProgress = async (data: IUpdateUserProgress) => {
+  let userProgress = await prismaClient.userProgress.findUnique({
+    where: {
+      userId_courseId: { userId: data.userId, courseId: data.courseId },
+    },
+  });
+
+  if (!userProgress) {
+    userProgress = await prismaClient.userProgress.create({
+      data: {
+        userId: data.userId,
+        courseId: data.courseId,
+        completedContents: [],
+      },
+    });
+  }
+
+  let completedContents = [...userProgress.completedContents];
+
+  if (data.isCompleted) {
+    if (!completedContents.includes(data.contentId)) {
+      completedContents.push(data.contentId);
+    }
+  } else {
+    completedContents = completedContents.filter((id) => id !== data.contentId);
+  }
+  const totalContents = await prismaClient.content.count({
+    where: {
+      module: { courseId: data.courseId },
+    },
+  });
+
+  const progressPercentage =
+    totalContents > 0
+      ? Math.round((completedContents.length / totalContents) * 100)
+      : 0;
+
+  const isCourseCompleted = progressPercentage === 100;
 
   const result = await prismaClient.userProgress.update({
-    where: { id },
+    where: { id: userProgress.id },
     data: {
-      ...data,
-      lastAccessed: data.lastAccessed || new Date(),
+      completedContents,
+      progress: progressPercentage,
+      completedAt: isCourseCompleted ? new Date() : null,
+      lastAccessed: new Date(),
     },
   });
 
   return result;
 };
 
+const markCourseComplete = async (courseId: string) => {
+  const userProgressList = await prismaClient.userProgress.findMany({
+    where: {
+      courseId,
+      progress: 100,
+      isCompleted: false,
+    },
+  });
+
+  if (userProgressList.length === 0) {
+    throw new Error("No users found with 100% progress for this course");
+  }
+
+  await prismaClient.userProgress.updateMany({
+    where: {
+      courseId,
+      progress: 100,
+      isCompleted: false,
+    },
+    data: {
+      isCompleted: true,
+      completedAt: new Date(),
+      lastAccessed: new Date(),
+    },
+  });
+
+  return userProgressList;
+};
+
 const deleteUserProgress = async (id: string) => {
-  const existing = await prismaClient.userProgress.findUnique({ where: { id } });
+  const existing = await prismaClient.userProgress.findUnique({
+    where: { id },
+  });
   if (!existing) throw new Error("User progress not found");
 
   const result = await prismaClient.userProgress.delete({ where: { id } });
@@ -122,5 +204,6 @@ export const userProgressService = {
   getUserProgressByCourseId,
   getUserProgressByUserAndCourse,
   updateUserProgress,
+  markCourseComplete,
   deleteUserProgress,
 };

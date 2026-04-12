@@ -77,7 +77,9 @@ const getAllCourses = async (
       where,
       include: {
         category: true,
-        modules: true,
+        modules: {
+          include: { contents: true },
+        },
         enrollments: true,
         orderItems: true,
         userProgress: true,
@@ -113,7 +115,9 @@ const getCourseBySlug = async (slug: string) => {
     where: { slug },
     include: {
       category: true,
-      modules: true,
+      modules: {
+        include: { contents: true },
+      },
       enrollments: true,
       orderItems: true,
       userProgress: true,
