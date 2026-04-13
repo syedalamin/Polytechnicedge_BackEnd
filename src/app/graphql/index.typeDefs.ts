@@ -19,7 +19,7 @@ import { paymentTypeDefs } from "../modules/Payments/payment.typeDefs.js";
 import { certificateTypeDefs } from "../modules/Certificates/certificate.typeDefs.js";
 import { noticeTypeDefs } from "../modules/Notices/notice.typeDefs.js";
 import { courseBundleTypeDefs } from "../modules/Bundles/bundle.typeDefs.js";
-
+import { bundleItemTypeDefs } from "../modules/BundleItems/bundleItem.typeDefs.js";
 
 export const typeDefs = mergeTypeDefs([
   baseTypeDefs,
@@ -42,5 +42,5 @@ export const typeDefs = mergeTypeDefs([
   certificateTypeDefs,
   noticeTypeDefs,
   courseBundleTypeDefs,
-  
+  bundleItemTypeDefs,
 ]);

@@ -110,6 +110,29 @@ const getAllCourses = async (
   return response;
 };
 
+const publishedCourses = async () => {
+  const result = await prismaClient.course.findMany({
+    where: { isPublished: true },
+    include: {
+      category: true,
+      modules: {
+        include: { contents: true },
+      },
+      enrollments: true,
+      orderItems: true,
+      userProgress: true,
+      certificates: true,
+      notices: true,
+      instructors: true,
+      bundleItems: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return result;
+};
+
+ 
 const getCourseBySlug = async (slug: string) => {
   const result = await prismaClient.course.findUnique({
     where: { slug },
@@ -191,7 +214,7 @@ export const courseService = {
   createCourse,
   getAllCourses,
   getCourseBySlug,
-
+publishedCourses,
   getFeaturedCourses,
   updateCourse,
   publishCourse,

@@ -18,7 +18,7 @@ import { paymentRoutes } from "../modules/Payments/payment.routes.js";
 import { certificateRoutes } from "../modules/Certificates/certificate.routes.js";
 import { noticeRoutes } from "../modules/Notices/notice.routes.js";
 import { bundleRoutes } from "../modules/Bundles/bundle.routes.js";
-
+import { bundleItemRoutes } from "../modules/BundleItems/bundleItem.routes.js";
 
 const router: Router = express.Router();
 
@@ -42,7 +42,7 @@ const moduleRouters = [
   { path: "/certificates", route: certificateRoutes },
   { path: "/notices", route: noticeRoutes },
   { path: "/bundles", route: bundleRoutes },
-
+  { path: "/bundle-items", route: bundleItemRoutes },
 ];
 
 moduleRouters.forEach((route) => router.use(route.path, route.route));

@@ -402,40 +402,6 @@ model Certificate {
 }
 
 
-model Order {
-  id            String      @id @default(uuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  totalAmount   Decimal     @db.Decimal(10, 2)
-  status        OrderStatus @default(PENDING)
-  transactionId String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  // Relações
-  items   OrderItem[]
-  payment Payment?
-
-  @@map("orders")
-}
-
-model OrderItem {
-  id          String        @id @default(uuid())
-  orderId     String
-  order       Order         @relation(fields: [orderId], references: [id])
-  courseId    String?
-  course      Course?       @relation(fields: [courseId], references: [id])
-  bundleId    String?
-  bundle      CourseBundle? @relation(fields: [bundleId], references: [id])
-  price       Decimal       @db.Decimal(10, 2)
-  // Enrollment লিঙ্ক (Bundle হলে একাধিক enrollment হবে)
-  enrollments Enrollment[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  @@map("order_items")
-}
-
 model CourseBundle {
   id          String   @id @default(uuid())
   title       String
@@ -464,6 +430,42 @@ model CourseBundleItem {
   updatedAt DateTime @updatedAt
   @@unique([bundleId, courseId])
   @@map("course_bundle_items")
+}
+
+
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  totalAmount   Decimal     @db.Decimal(10, 2)
+  status        OrderStatus @default(PENDING)
+  transactionId String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // Relações
+  items   OrderItem[]
+  payment Payment?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String        @id @default(uuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id])
+  courseId    String?
+  course      Course?       @relation(fields: [courseId], references: [id])
+  bundleId    String?
+  bundle      CourseBundle? @relation(fields: [bundleId], references: [id])
+  price       Decimal       @db.Decimal(10, 2)
+ 
+  enrollments Enrollment[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("order_items")
 }
 
 model Payment {

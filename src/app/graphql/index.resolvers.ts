@@ -20,7 +20,7 @@ import { paymentResolvers } from "../modules/Payments/payment.resolvers.js";
 import { certificateResolvers } from "../modules/Certificates/certificate.resolvers.js";
 import { noticeResolvers } from "../modules/Notices/notice.resolvers.js";
 import { courseBundleResolvers } from "../modules/Bundles/bundle.resolvers.js";
-
+import { bundleItemResolvers } from "../modules/BundleItems/bundleItem.resolvers.js";
 
 export const resolvers: IResolvers = mergeResolvers([
   baseResolvers,
@@ -43,5 +43,5 @@ export const resolvers: IResolvers = mergeResolvers([
   certificateResolvers,
   noticeResolvers,
   courseBundleResolvers,
-  
+  bundleItemResolvers,
 ]);

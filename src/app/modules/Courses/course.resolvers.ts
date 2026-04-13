@@ -3,7 +3,6 @@ import { courseService } from "./course.service";
 import { IPaginationOptions } from "./course.interface";
 
 export const courseResolvers = {
- 
   Query: {
     allCourses: async (_: any, args: any) => {
       const filter = args.filter || {};
@@ -20,6 +19,9 @@ export const courseResolvers = {
     },
     featuredCourses: async () => {
       return await courseService.getFeaturedCourses();
+    },
+    publishedCourses: async () => {
+      return await courseService.publishedCourses();
     },
   },
 };

@@ -1,11 +1,4 @@
-export interface ICourseBundleItem {
-  id: string;
-  bundleId: string;
-  courseId: string;
-  priceAtBundleTime: any;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { ICourseBundleItem } from "../BundleItems/bundleItem.interface";
 
 export interface ICourseBundle {
   id: string;
@@ -27,12 +20,7 @@ export interface ICreateCourseBundle {
   items?: { courseId: string; priceAtBundleTime: number }[];
 }
 
-export interface IUpdateCourseBundle {
-  title?: string;
-  description?: string;
-  price?: number;
-  isPublished?: boolean;
-}
+
 
 export interface ICourseBundleFilter {
   isPublished?: boolean | undefined;

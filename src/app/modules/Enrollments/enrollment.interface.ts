@@ -6,7 +6,7 @@ export interface IEnrollment {
   courseId: string;
   orderItemId: string | null;
   status: EnrollmentStatus;
-  enrolledAt: Date;
+  enrolledAt: Date | null;
   expiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
