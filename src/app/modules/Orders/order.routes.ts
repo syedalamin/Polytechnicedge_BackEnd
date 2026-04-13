@@ -7,11 +7,22 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-router.post("/", auth(UserRole.STUDENT), validateRequest(orderValidation.createOrderValidation), orderController.createOrder);
-router.get("/", orderController.getAllOrders);
-router.get("/user/:userId", orderController.getOrdersByUserId);
-router.get("/:id", orderController.getOrderById);
-router.patch("/:id", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), validateRequest(orderValidation.updateOrderValidation), orderController.updateOrder);
-router.delete("/:id", auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), orderController.deleteOrder);
+router.post(
+  "/",
+  auth(UserRole.STUDENT, UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(orderValidation.createOrderValidation),
+  orderController.createOrder,
+);
+router.patch(
+  "/:id",
+  auth( UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.STUDENT),
+  validateRequest(orderValidation.updateOrderValidation),
+  orderController.updateOrder,
+);
+router.delete(
+  "/:id",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN,),
+  orderController.deleteOrder,
+);
 
 export const orderRoutes = router;

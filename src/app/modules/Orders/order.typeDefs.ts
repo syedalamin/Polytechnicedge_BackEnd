@@ -21,9 +21,32 @@ export const orderTypeDefs = `#graphql
     bundleId: String
     bundle: CourseBundle
     price: Float!
-    enrollments: [Enrollment!]
     createdAt: DateTime!
     updatedAt: DateTime!
+  }
+
+  type Payment {
+    id: ID!
+    orderId: String!
+    order: Order
+    userId: String!
+    user: User
+    amount: Float!
+    transactionId: String!
+    paymentMethod: String!
+    status: String!
+    paidAt: DateTime
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+
+
+  type PaginationMeta {
+    page: Int!
+    limit: Int!
+    total: Int!
+    totalPages: Int!
   }
 
   type Query {
