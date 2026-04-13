@@ -1,9 +1,12 @@
 import { paymentService } from "./payment.service";
 import { IPaginationOptions } from "./payment.interface";
+import { UserRole } from "../../../generated/prisma/enums";
+import graphqlAuth from "../../middlewares/graphqlAuth";
 
 export const paymentResolvers = {
   Query: {
-    allPayments: async (_: any, args: any) => {
+    allPayments: async (_: any, args: any, context: any) => {
+      graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN);
       const filter = args.filter || {};
       const paginationOptions: IPaginationOptions = {
         page: args.pagination?.page || 1,
@@ -13,11 +16,18 @@ export const paymentResolvers = {
       };
       return await paymentService.getAllPayments(filter, paginationOptions);
     },
-    payment: async (_: any, { id }: { id: string }) => {
+    payment: async (_: any, { id }: { id: string }, context: any) => {
+      graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT);
       return await paymentService.getPaymentById(id);
     },
-    paymentByOrderId: async (_: any, { orderId }: { orderId: string }) => {
+    getPaymentByOrderId: async (_: any, { orderId }: { orderId: string }, context: any) => {
+      graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT);
       return await paymentService.getPaymentByOrderId(orderId);
+    },
+ 
+    getPaymentByUserId: async (_: any, { userId }: { userId: string }, context: any) => {
+      graphqlAuth(context, UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.STUDENT);
+      return await paymentService.getPaymentByUserId(userId);
     },
   },
 };

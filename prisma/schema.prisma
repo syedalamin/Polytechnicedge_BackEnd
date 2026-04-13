@@ -401,7 +401,6 @@ model Certificate {
   @@map("certificates")
 }
 
-
 model CourseBundle {
   id          String   @id @default(uuid())
   title       String
@@ -420,19 +419,18 @@ model CourseBundle {
 }
 
 model CourseBundleItem {
-  id        String       @id @default(uuid())
-  bundleId  String
-  bundle    CourseBundle @relation(fields: [bundleId], references: [id])
-  courseId  String
-  course    Course       @relation(fields: [courseId], references: [id])
-  priceAtBundleTime Decimal @db.Decimal(10, 2)    
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String       @id @default(uuid())
+  bundleId          String
+  bundle            CourseBundle @relation(fields: [bundleId], references: [id])
+  courseId          String
+  course            Course       @relation(fields: [courseId], references: [id])
+  priceAtBundleTime Decimal      @db.Decimal(10, 2)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
   @@unique([bundleId, courseId])
   @@map("course_bundle_items")
 }
-
-
 
 model Order {
   id            String      @id @default(uuid())
@@ -452,31 +450,33 @@ model Order {
 }
 
 model OrderItem {
-  id          String        @id @default(uuid())
-  orderId     String
-  order       Order         @relation(fields: [orderId], references: [id])
-  courseId    String?
-  course      Course?       @relation(fields: [courseId], references: [id])
-  bundleId    String?
-  bundle      CourseBundle? @relation(fields: [bundleId], references: [id])
-  price       Decimal       @db.Decimal(10, 2)
- 
+  id       String        @id @default(uuid())
+  orderId  String
+  order    Order         @relation(fields: [orderId], references: [id])
+  courseId String?
+  course   Course?       @relation(fields: [courseId], references: [id])
+  bundleId String?
+  bundle   CourseBundle? @relation(fields: [bundleId], references: [id])
+  price    Decimal       @db.Decimal(10, 2)
+
   enrollments Enrollment[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@map("order_items")
 }
 
 model Payment {
-  id      String @id @default(uuid())
-  orderId String @unique
-  order   Order  @relation(fields: [orderId], references: [id])
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  id            String        @id @default(uuid())
+  orderId       String        @unique
+  order         Order         @relation(fields: [orderId], references: [id])
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
   amount        Decimal       @db.Decimal(10, 2)
   transactionId String        @unique
   paymentMethod String
+  invoiceId     String?       @unique
+  token         String?
   status        PaymentStatus @default(PENDING)
   paidAt        DateTime?
   createdAt     DateTime      @default(now())
@@ -486,25 +486,22 @@ model Payment {
 }
 
 model Enrollment {
-  id          String            @id @default(uuid())
+  id          String           @id @default(uuid())
   userId      String
-  user        User              @relation(fields: [userId], references: [id])
+  user        User             @relation(fields: [userId], references: [id])
   courseId    String
-  course      Course            @relation(fields: [courseId], references: [id])
+  course      Course           @relation(fields: [courseId], references: [id])
   orderItemId String?
-  orderItem   OrderItem?        @relation(fields: [orderItemId], references: [id])
-  status      EnrollmentStatus  @default(PENDING)
+  orderItem   OrderItem?       @relation(fields: [orderItemId], references: [id])
+  status      EnrollmentStatus @default(PENDING)
   enrolledAt  DateTime?
   expiresAt   DateTime?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@unique([userId, courseId])
   @@map("enrollments")
 }
-
-
-
 
 model Session {
   id               String            @id @default(uuid())

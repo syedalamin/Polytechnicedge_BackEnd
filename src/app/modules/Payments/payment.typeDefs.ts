@@ -17,7 +17,8 @@ export const paymentTypeDefs = `#graphql
   type Query {
     allPayments(filter: PaymentFilterInput, pagination: PaginationInput): PaginatedPayments!
     payment(id: ID): Payment
-    paymentByOrderId(orderId: String!): Payment
+    getPaymentByOrderId(orderId: String!): Payment
+    getPaymentByUserId(userId: String!): [Payment!]!
   }
 
   input PaymentFilterInput {

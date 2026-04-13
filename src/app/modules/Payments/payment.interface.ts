@@ -21,11 +21,11 @@ export interface IPaymentWithOrder extends IPayment {
 }
 
 export interface ICreatePayment {
-  userId: string;
   orderId: string;
   amount: number;
   transactionId: string;
   paymentMethod: string;
+  status: PaymentStatus;
 }
 
 export interface IUpdatePayment {
