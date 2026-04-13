@@ -1,23 +1,15 @@
 import { bundleItemService } from "./bundleItem.service";
+import { calculatePagination } from "../../../utils/pagination";
 
 export const bundleItemResolvers = {
   Query: {
-    getBundleItemsByBundleId: async (_: any, { bundleId }: { bundleId: string }) => {
-      return await bundleItemService.getBundleItemsByBundleId(bundleId);
+    getBundleItemsByBundleId: async (_: any, { filter, pagination }: any) => {
+      const { page, limit } = calculatePagination(pagination);
+      return await bundleItemService.getBundleItemsByBundleId(filter?.bundleId, { page, limit });
     },
     getBundleItemById: async (_: any, { id }: { id: string }) => {
       return await bundleItemService.getBundleItemById(id);
     },
   },
-  Mutation: {
-    createBundleItem: async (_: any, { bundleId, data }: { bundleId: string; data: any }) => {
-      return await bundleItemService.createBundleItem(bundleId, data);
-    },
-    updateBundleItem: async (_: any, { id, priceAtBundleTime }: { id: string; priceAtBundleTime: number }) => {
-      return await bundleItemService.updateBundleItem(id, priceAtBundleTime);
-    },
-    deleteBundleItem: async (_: any, { id }: { id: string }) => {
-      return await bundleItemService.deleteBundleItem(id);
-    },
-  },
+  
 };

@@ -10,19 +10,24 @@ export const bundleItemTypeDefs = `#graphql
     updatedAt: DateTime!
   }
 
-  type Query {
-    getBundleItemsByBundleId(bundleId: ID!): [CourseBundleItem!]!
-    getBundleItemById(id: ID!): CourseBundleItem
+  type PaginatedBundlesItems {
+    bundlesItems: [CourseBundleItem!]!
+    meta: PaginationMeta!
+  }
+
+  input BundleItemFilterInput {
+    bundleId: ID
   }
 
   input CreateBundleItemInput {
     courseId: ID!
-    priceAtBundleTime: Float!
+    priceAtBundleTime: Float
   }
 
-  type Mutation {
-    createBundleItem(bundleId: ID!, data: CreateBundleItemInput!): CourseBundleItem!
-    updateBundleItem(id: ID!, priceAtBundleTime: Float!): CourseBundleItem!
-    deleteBundleItem(id: ID!): CourseBundleItem!
+  type Query {
+    getBundleItemsByBundleId(filter: BundleItemFilterInput, pagination: PaginationInput): PaginatedBundlesItems!
+    getBundleItemById(id: ID!): CourseBundleItem
   }
+
+   
 `;

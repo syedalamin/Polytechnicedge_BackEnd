@@ -139,6 +139,34 @@ const getPublishedBundles = async () => {
   return result;
 };
 
+const addBundleItem = async (bundleId: string, data: { courseId: string; priceAtBundleTime?: number }) => {
+  const bundle = await prismaClient.courseBundle.findUnique({ where: { id: bundleId } });
+  if (!bundle) throw new Error("Bundle not found");
+
+  const course = await prismaClient.course.findUnique({ where: { id: data.courseId } });
+  if (!course) throw new Error("Course not found");
+
+  const existingItem = await prismaClient.courseBundleItem.findFirst({
+    where: { bundleId, courseId: data.courseId },
+  });
+  if (existingItem) throw new Error("Course already in bundle");
+
+  const coursePrice = Number(course.price);
+
+  const result = await prismaClient.courseBundleItem.create({
+    data: {
+      bundleId,
+      courseId: data.courseId,
+      priceAtBundleTime: data.priceAtBundleTime ?? coursePrice,
+    },
+    include: {
+      course: { include: { instructors: { include: { instructor: true } } } },
+    },
+  });
+
+  return result;
+};
+
 const deleteCourseBundle = async (id: string) => {
   const existing = await prismaClient.courseBundle.findUnique({
     where: { id },
@@ -157,6 +185,6 @@ export const courseBundleService = {
   getAllCourseBundles,
   getCourseBundleBySlug,
   getPublishedBundles,
-
+  addBundleItem,
   deleteCourseBundle,
 };

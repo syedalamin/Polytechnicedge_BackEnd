@@ -1,42 +1,29 @@
 import prismaClient from "../../../config/prismaClient";
-import { ICreateBundleItem, IBundleItemFilter } from "./bundleItem.interface";
+import { ICreateBundleItem } from "./bundleItem.interface.js";
+import { calculatePagination } from "../../../utils/pagination";
 
-const createBundleItem = async (bundleId: string, data: ICreateBundleItem) => {
-  const bundle = await prismaClient.courseBundle.findUnique({ where: { id: bundleId } });
-  if (!bundle) throw new Error("Bundle not found");
+ 
 
-  const course = await prismaClient.course.findUnique({ where: { id: data.courseId } });
-  if (!course) throw new Error("Course not found");
+const getBundleItemsByBundleId = async (bundleId: string, pagination: { page: number; limit: number }) => {
+  const { page, limit, skip } = calculatePagination(pagination);
 
-  const existingItem = await prismaClient.courseBundleItem.findFirst({
-    where: { bundleId, courseId: data.courseId },
-  });
-  if (existingItem) throw new Error("Course already in bundle");
+  const [result, total] = await Promise.all([
+    prismaClient.courseBundleItem.findMany({
+      where: { bundleId },
+      include: {
+        course: { include: { instructors: { include: { instructor: true } } } },
+      },
+      skip,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+    }),
+    prismaClient.courseBundleItem.count({ where: { bundleId } }),
+  ]);
 
-  const result = await prismaClient.courseBundleItem.create({
-    data: {
-      bundleId,
-      courseId: data.courseId,
-      priceAtBundleTime: data.priceAtBundleTime,
-    },
-    include: {
-      course: { include: { instructors: { include: { instructor: true } } } },
-    },
-  });
-
-  return result;
-};
-
-const getBundleItemsByBundleId = async (bundleId: string) => {
-  const result = await prismaClient.courseBundleItem.findMany({
-    where: { bundleId },
-    include: {
-      course: { include: { instructors: { include: { instructor: true } } } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return result;
+  return {
+    bundlesItems: result,
+    meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 const getBundleItemById = async (id: string) => {
@@ -50,32 +37,10 @@ const getBundleItemById = async (id: string) => {
 
   return result;
 };
-
-const updateBundleItem = async (id: string, priceAtBundleTime: number) => {
-  const existing = await prismaClient.courseBundleItem.findUnique({ where: { id } });
-  if (!existing) throw new Error("Bundle item not found");
-
-  const result = await prismaClient.courseBundleItem.update({
-    where: { id },
-    data: { priceAtBundleTime },
-  });
-
-  return result;
-};
-
-const deleteBundleItem = async (id: string) => {
-  const existing = await prismaClient.courseBundleItem.findUnique({ where: { id } });
-  if (!existing) throw new Error("Bundle item not found");
-
-  const result = await prismaClient.courseBundleItem.delete({ where: { id } });
-
-  return result;
-};
-
+ 
 export const bundleItemService = {
-  createBundleItem,
+ 
   getBundleItemsByBundleId,
   getBundleItemById,
-  updateBundleItem,
-  deleteBundleItem,
+ 
 };

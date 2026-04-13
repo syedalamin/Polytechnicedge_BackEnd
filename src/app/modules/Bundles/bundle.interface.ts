@@ -1,4 +1,4 @@
-import { ICourseBundleItem } from "../BundleItems/bundleItem.interface";
+import { ICourseBundleItem } from "../BundleItems/bundleItem.interface.js";
 
 export interface ICourseBundle {
   id: string;
@@ -7,7 +7,7 @@ export interface ICourseBundle {
   description: string;
   price: any;
   isPublished: boolean;
-  items: ICourseBundleItem[];
+  items: any[];
   createdAt: Date;
   updatedAt: Date;
 }
