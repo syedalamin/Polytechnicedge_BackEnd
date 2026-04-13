@@ -4,6 +4,7 @@ import {
   ICourseBundleFilter,
   IPaginationOptions,
   IPaginatedCourseBundles,
+  IUpdateCourseBundle,
 } from "./bundle.interface";
 import { calculatePagination } from "../../../utils/pagination";
 import { generateUniqueSlug } from "../../../utils/slugGenerator";
@@ -55,6 +56,95 @@ const createCourseBundle = async (data: ICreateCourseBundle) => {
             priceAtBundleTime: coursePrice,
           },
         });
+      }
+    }
+
+    return bundle;
+  });
+
+  return result;
+};
+
+const updateCourseBundle = async (
+  bundleId: string,
+  data: IUpdateCourseBundle,
+) => {
+  const existingBundle = await prismaClient.courseBundle.findUnique({
+    where: { id: bundleId },
+    include: { items: true },
+  });
+  if (!existingBundle) throw new Error("Bundle not found");
+
+  const removeItemIds = data.removeItems || [];
+  const newItemCourseIds = data.items ? data.items.map((item) => item.courseId) : [];
+
+  const remainingItems = existingBundle.items.filter(
+    (item) => !removeItemIds.includes(item.courseId) && !newItemCourseIds.includes(item.courseId)
+  );
+  const remainingPrice = remainingItems.reduce((sum, item) => sum + Number(item.priceAtBundleTime), 0);
+
+  let newItemPrice = 0;
+  if (data.items && data.items.length > 0) {
+    const courses = await prismaClient.course.findMany({
+      where: { id: { in: data.items.map((item) => item.courseId) } },
+      select: { id: true, price: true },
+    });
+
+    const coursePriceMap = new Map(courses.map((c) => [c.id, Number(c.price)]));
+
+    newItemPrice = data.items.reduce((sum, item) => {
+      const coursePrice = coursePriceMap.get(item.courseId) || 0;
+      return sum + coursePrice;
+    }, 0);
+  }
+
+  const bundlePrice = remainingPrice + newItemPrice;
+
+  const result = await prismaClient.$transaction(async (tx) => {
+    if (removeItemIds.length > 0) {
+      await tx.courseBundleItem.deleteMany({
+        where: {
+          bundleId,
+          courseId: { in: removeItemIds },
+        },
+      });
+    }
+
+    const bundle = await tx.courseBundle.update({
+      where: { id: bundleId },
+      data: {
+        description: data.description,
+        price: bundlePrice,
+        isPublished: data.isPublished ?? false,
+      },
+    });
+
+    if (data.items && data.items.length > 0) {
+      for (const item of data.items) {
+        const course = await tx.course.findUnique({
+          where: { id: item.courseId },
+          select: { price: true },
+        });
+        const coursePrice = course ? Number(course.price) : 0;
+
+        const existingItem = await tx.courseBundleItem.findFirst({
+          where: { bundleId: bundle.id, courseId: item.courseId },
+        });
+
+        if (existingItem) {
+          await tx.courseBundleItem.update({
+            where: { id: existingItem.id },
+            data: { priceAtBundleTime: coursePrice },
+          });
+        } else {
+          await tx.courseBundleItem.create({
+            data: {
+              bundleId: bundle.id,
+              courseId: item.courseId,
+              priceAtBundleTime: coursePrice,
+            },
+          });
+        }
       }
     }
 
@@ -139,34 +229,6 @@ const getPublishedBundles = async () => {
   return result;
 };
 
-const addBundleItem = async (bundleId: string, data: { courseId: string; priceAtBundleTime?: number }) => {
-  const bundle = await prismaClient.courseBundle.findUnique({ where: { id: bundleId } });
-  if (!bundle) throw new Error("Bundle not found");
-
-  const course = await prismaClient.course.findUnique({ where: { id: data.courseId } });
-  if (!course) throw new Error("Course not found");
-
-  const existingItem = await prismaClient.courseBundleItem.findFirst({
-    where: { bundleId, courseId: data.courseId },
-  });
-  if (existingItem) throw new Error("Course already in bundle");
-
-  const coursePrice = Number(course.price);
-
-  const result = await prismaClient.courseBundleItem.create({
-    data: {
-      bundleId,
-      courseId: data.courseId,
-      priceAtBundleTime: data.priceAtBundleTime ?? coursePrice,
-    },
-    include: {
-      course: { include: { instructors: { include: { instructor: true } } } },
-    },
-  });
-
-  return result;
-};
-
 const deleteCourseBundle = async (id: string) => {
   const existing = await prismaClient.courseBundle.findUnique({
     where: { id },
@@ -182,9 +244,10 @@ const deleteCourseBundle = async (id: string) => {
 
 export const courseBundleService = {
   createCourseBundle,
+  updateCourseBundle,
   getAllCourseBundles,
   getCourseBundleBySlug,
   getPublishedBundles,
-  addBundleItem,
+
   deleteCourseBundle,
 };

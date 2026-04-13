@@ -9,7 +9,10 @@ const createCourseBundle = catchAsync(async (req, res) => {
   sendResponse(res, httpStatus.CREATED, "Course bundle created successfully", result);
 });
 
-
+const updateCourseBundle = catchAsync(async (req, res) => {
+  const result = await courseBundleService.updateCourseBundle(req.params.id as string, req.body);
+  sendResponse(res, httpStatus.OK, "Course bundle updated successfully", result);
+});
 
 
 
@@ -20,5 +23,6 @@ const deleteCourseBundle = catchAsync(async (req, res) => {
 
 export const courseBundleController = {
   createCourseBundle,
+  updateCourseBundle,
   deleteCourseBundle,
 };

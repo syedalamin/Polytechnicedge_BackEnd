@@ -1,5 +1,4 @@
-import { ICourseBundleItem } from "../BundleItems/bundleItem.interface.js";
-
+ 
 export interface ICourseBundle {
   id: string;
   title: string;
@@ -18,6 +17,13 @@ export interface ICreateCourseBundle {
   price: number;
   isPublished?: boolean;
   items?: { courseId: string; priceAtBundleTime: number }[];
+}
+export interface IUpdateCourseBundle {
+  description: string;
+  price: number;
+  isPublished?: boolean;
+  items?: { courseId: string; }[];
+  removeItems?: string[];
 }
 
 
