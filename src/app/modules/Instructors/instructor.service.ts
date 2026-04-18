@@ -90,17 +90,7 @@ const updateInstructorProfile = async (
   return result;
 };
 
-const deleteInstructor = async (id: string): Promise<IInstructor> => {
-  const result = await prismaClient.instructorProfile.delete({
-    where: { id },
-    include: {
-      user: true,
-      courseInstructors: true,
-      sessions: true,
-    },
-  });
-  return result;
-};
+ 
 
 const getAllInstructors = async (
   paginationOptions: IPaginationOptions,
@@ -153,7 +143,7 @@ const getInstructorProfile = async (
 export const instructorService = {
   createInstructor,
   updateInstructorProfile,
-  deleteInstructor,
+
   getAllInstructors,
   getInstructorProfile,
 };

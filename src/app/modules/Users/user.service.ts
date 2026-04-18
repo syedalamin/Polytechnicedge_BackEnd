@@ -1,10 +1,11 @@
+import { Request } from "express";
 import prismaClient from "../../../config/prismaClient";
 import { calculatePagination } from "../../../utils/pagination";
 import {
   IUserFilter,
   IPaginationOptions,
   IPaginatedUsers,
-  IUser,
+ 
 } from "./user.interface";
 
 const getAllUsers = async (
@@ -60,13 +61,47 @@ const getUserById = async (id: string) => {
       adminProfile: true,
       instructorProfile: true,
       studentProfile: true,
+      orders: true,
+      payments: true,
+      enrollments: true,
+      userProgress: true,
+      certificates: true,
+      notices: true,
+      quizAttempts: true,
+      courses: true,
     },
   });
 
   return result;
 };
 
+const getMe = async (userId: string) => {
+  if (!userId) {
+    throw new Error("User ID not found in request");
+  }
+  const user = await prismaClient.user.findUnique({
+    where: { id: userId },
+    include: {
+      adminProfile: true,
+      instructorProfile: true,
+      studentProfile: true,
+      orders: true,
+      payments: true,
+      enrollments: true,
+      userProgress: true,
+      certificates: true,
+      notices: true,
+      quizAttempts: true,
+      courses: true,
+    },
+  });
+
+  return user;
+};
+
+
 export const userService = {
   getAllUsers,
   getUserById,
+  getMe,
 };

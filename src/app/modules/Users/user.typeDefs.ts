@@ -45,12 +45,12 @@ export const userTypeDefs = `#graphql
 
 
  
+ 
 
   type Query {
     allUsers(filter: UserFilterInput, pagination: PaginationInput): PaginatedUsers!
     user(id: ID!): User
-   
+    me: User
   }
 
-  
 `;

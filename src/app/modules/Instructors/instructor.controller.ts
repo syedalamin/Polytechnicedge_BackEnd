@@ -9,11 +9,7 @@ const createInstructor = catchAsync(async (req, res) => {
   sendResponse(res, httpStatus.CREATED, "Instructor created successfully", result);
 });
 
-const deleteInstructor = catchAsync(async (req, res) => {
-  const id = req.params.id as string;
-  const result = await instructorService.deleteInstructor(id);
-  sendResponse(res, httpStatus.OK, "Instructor deleted successfully", result);
-});
+
 
 const updateInstructorProfile = catchAsync(async (req, res) => {
   const id = req.params.id as string;
@@ -23,6 +19,5 @@ const updateInstructorProfile = catchAsync(async (req, res) => {
 
 export const instructorController = {
   createInstructor,
-  deleteInstructor,
   updateInstructorProfile,
 };

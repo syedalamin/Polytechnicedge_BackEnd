@@ -14,11 +14,6 @@ router.post(
   instructorController.createInstructor,
 );
 
-router.delete(
-  "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-  instructorController.deleteInstructor,
-);
 
 router.put(
   "/:id",

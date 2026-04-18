@@ -21,6 +21,13 @@ export const userResolvers = {
        await graphqlAuth(context, UserRole.ADMIN, UserRole.SUPER_ADMIN);
       return await userService.getUserById(id);
     },
+    me: async (_: any, __: any, context: any) => {
+      await graphqlAuth(context, UserRole.ADMIN, UserRole.INSTRUCTOR, UserRole.STUDENT, UserRole.SUPER_ADMIN);
+       const { req } = context;
+      const userId = req.user.userId;
+      return await userService.getMe(userId);
+    }
    
   },
+
 };

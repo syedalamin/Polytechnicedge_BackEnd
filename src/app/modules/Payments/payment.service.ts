@@ -68,6 +68,15 @@ const createPayment = async (req: Request) => {
           enrolledAt: new Date(),
         },
       });
+      await prismaClient.userProgress.create({
+        data: {
+          userId: user.id,
+          courseId: item.courseId,
+          progress: 0,
+          isCompleted: false,
+          lastAccessed: new Date(),
+        },
+      });
     } else if (item.bundleId) {
       const bundle = await prismaClient.courseBundle.findUnique({
         where: { id: item.bundleId },
@@ -82,6 +91,15 @@ const createPayment = async (req: Request) => {
               orderItemId: item.id,
               status: EnrollmentStatus.ACTIVE,
               enrolledAt: new Date(),
+            },
+          });
+          await prismaClient.userProgress.create({
+            data: {
+              userId: user.id,
+              courseId: bundleItem.courseId,
+              progress: 0,
+              isCompleted: false,
+              lastAccessed: new Date(),
             },
           });
         }
@@ -147,8 +165,45 @@ const getPaymentByUserId = async (userId: string) => {
 };
 
 const deletePayment = async (id: string) => {
-  const existing = await prismaClient.payment.findUnique({ where: { id } });
+  const existing = await prismaClient.payment.findUnique({
+    where: { id },
+    include: { order: { include: { items: true } } },
+  });
   if (!existing) throw new Error("Payment not found");
+
+  const orderItems = existing.order.items;
+  const courseIds = orderItems
+    .filter((item) => item.courseId)
+    .map((item) => item.courseId as string);
+
+  if (orderItems.some((item) => item.bundleId)) {
+    const bundleItems = await prismaClient.courseBundleItem.findMany({
+      where: { bundleId: { in: orderItems.map((i) => i.bundleId as string) } },
+    });
+    courseIds.push(...bundleItems.map((b: { courseId: string }) => b.courseId));
+  }
+
+  await prismaClient.userProgress.deleteMany({
+    where: {
+      userId: existing.userId,
+      courseId: { in: courseIds },
+    },
+  });
+
+  await prismaClient.enrollment.deleteMany({
+    where: {
+      userId: existing.userId,
+      courseId: { in: courseIds },
+    },
+  });
+
+  await prismaClient.order.update({
+    where: { id: existing.orderId },
+    data: {
+      status: "PENDING",
+      transactionId: null,
+    },
+  });
 
   const result = await prismaClient.payment.delete({ where: { id } });
 
