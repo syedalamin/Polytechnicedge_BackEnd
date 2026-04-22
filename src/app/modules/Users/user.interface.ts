@@ -1,4 +1,7 @@
 import { UserRole } from "../../../generated/prisma/enums";
+import { IUpdateStudentProfile } from "../Students/student.interface";
+import { IUpdateInstructor } from "../Instructors/instructor.interface";
+import { IUpdateAdmin } from "../Admins/admin.interface";
 
 export interface IUser {
   id: string;
@@ -63,4 +66,10 @@ export interface IPaginationMeta {
 export interface IPaginatedUsers {
   users: IUser[];
   meta: IPaginationMeta;
+}
+
+export interface IUpdateMe extends Partial<IUpdateUser> {
+  adminData?: Partial<IUpdateAdmin>;
+  instructorData?: Partial<IUpdateInstructor>;
+  studentData?: Partial<IUpdateStudentProfile>;
 }

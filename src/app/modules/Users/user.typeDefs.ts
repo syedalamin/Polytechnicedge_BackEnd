@@ -53,4 +53,62 @@ export const userTypeDefs = `#graphql
     me: User
   }
 
+  input AdminDataInput {
+    firstName: String
+    lastName: String
+    middleName: String
+    bio: String
+    gender: String
+    contactNumber1: String
+    contactNumber2: String
+    dateOfBirth: DateTime
+    address: String
+    profileImage: String
+    backgroundImage: String
+  }
+
+  input InstructorDataInput {
+    firstName: String
+    lastName: String
+    middleName: String
+    bio: String
+    gender: String
+    contactNumber1: String
+    contactNumber2: String
+    dateOfBirth: DateTime
+    address: String
+    profileImage: String
+    backgroundImage: String
+    qualification: String
+    expertise: [String!]
+    linkedin: String
+    website: String
+  }
+
+  input StudentDataInput {
+    firstName: String
+    lastName: String
+    middleName: String
+    bio: String
+    gender: String
+    contactNumber1: String
+    contactNumber2: String
+    dateOfBirth: DateTime
+    address: String
+    profileImage: String
+    backgroundImage: String
+    educationLevel: String
+    interests: [String!]
+  }
+
+  input UpdateMeInput {
+    username: String
+    adminData: AdminDataInput
+    instructorData: InstructorDataInput
+    studentData: StudentDataInput
+  }
+
+  type Mutation {
+    updateMe(data: UpdateMeInput!): User
+  }
 `;

@@ -1,12 +1,14 @@
-import { Request } from "express";
 import prismaClient from "../../../config/prismaClient";
 import { calculatePagination } from "../../../utils/pagination";
+import { UserRole } from "../../../generated/prisma/enums";
 import {
   IUserFilter,
   IPaginationOptions,
   IPaginatedUsers,
- 
+  IUpdateMe,
 } from "./user.interface";
+import { ApiError } from "../../../errors/apiError";
+import status from "http-status";
 
 const getAllUsers = async (
   filter: IUserFilter,
@@ -99,9 +101,78 @@ const getMe = async (userId: string) => {
   return user;
 };
 
+const updateMe = async (userId: string, data: IUpdateMe) => {
+  if (!userId) {
+    throw new ApiError(status.NOT_FOUND, "User ID not found in request");
+  }
+
+  const user = await prismaClient.user.findUnique({
+    where: { id: userId },
+    include: {
+      adminProfile: true,
+      instructorProfile: true,
+      studentProfile: true,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, "User not found");
+  }
+
+  const { adminData, instructorData, studentData } = data;
+
+  const result = await prismaClient.$transaction(async (tx) => {
+    switch (user.role) {
+      case UserRole.ADMIN:
+        if (user.adminProfile && adminData) {
+          await tx.adminProfile.update({
+            where: { id: user.adminProfile.id },
+            data: adminData,
+          });
+        }
+        break;
+      case UserRole.INSTRUCTOR:
+        if (user.instructorProfile && instructorData) {
+          await tx.instructorProfile.update({
+            where: { id: user.instructorProfile.id },
+            data: instructorData,
+          });
+        }
+        break;
+      case UserRole.STUDENT:
+        if (user.studentProfile && studentData) {
+          await tx.studentProfile.update({
+            where: { id: user.studentProfile.id },
+            data: studentData,
+          });
+        }
+        break;
+    }
+
+    return tx.user.findUnique({
+      where: { id: userId },
+      include: {
+        adminProfile: true,
+        instructorProfile: true,
+        studentProfile: true,
+        orders: true,
+        payments: true,
+        enrollments: true,
+        userProgress: true,
+        certificates: true,
+        notices: true,
+        quizAttempts: true,
+        courses: true,
+      },
+    });
+  });
+
+  return result;
+};
 
 export const userService = {
   getAllUsers,
   getUserById,
   getMe,
+  updateMe,
 };
