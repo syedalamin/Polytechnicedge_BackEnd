@@ -19,6 +19,13 @@ const createContent = async (data: ICreateContent) => {
     throw new Error("Module not found");
   }
 
+  const lastContent = await prismaClient.content.findFirst({
+    where: { moduleId: data.moduleId },
+    orderBy: { serial: "desc" },
+  });
+
+  const nextOrder = (lastContent?.serial ?? 0) + 1;
+
   const slug = await generateUniqueSlug(data.title, { model: "content" });
 
   const result = await prismaClient.content.create({
@@ -31,6 +38,7 @@ const createContent = async (data: ICreateContent) => {
       textContent: data.textContent || null,
       isLocked: data.isLocked ?? true,
       duration: data.duration || null,
+      serial: nextOrder,
     },
   });
 

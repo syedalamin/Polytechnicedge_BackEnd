@@ -8,6 +8,7 @@ export const userProgressTypeDefs = `#graphql
     progress: Float!
     isCompleted: Boolean!
     completedContents: [String!]
+    currentContentId: String
     lastAccessed: DateTime
     completedAt: DateTime
     createdAt: DateTime!

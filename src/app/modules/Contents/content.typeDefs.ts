@@ -10,6 +10,7 @@ export const contentTypeDefs = `#graphql
     textContent: String
     isLocked: Boolean!
     duration: Int
+    serial: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

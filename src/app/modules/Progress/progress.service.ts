@@ -4,9 +4,12 @@ import {
   IUserProgressFilter,
   IPaginationOptions,
   IPaginatedUserProgress,
+  IUpdateUserProgress,
 } from "./progress.interface";
 import { calculatePagination } from "../../../utils/pagination";
 import { Request } from "express";
+import { ApiError } from "../../../errors/apiError";
+import status from "http-status";
 
 const createUserProgress = async (data: ICreateUserProgress) => {
   const [user, course] = await Promise.all([
@@ -105,12 +108,15 @@ const getUserProgressByUserAndCourse = async (
 };
 
 const updateUserProgress = async (req: Request) => {
-  const data = req.body;
+  const data = req.body as IUpdateUserProgress;
   const { userId } = req.user as { userId: string };
 
   let userProgress = await prismaClient.userProgress.findUnique({
     where: {
-      userId_courseId: { userId, courseId: data.courseId },
+      userId_courseId: {
+        userId,
+        courseId: data.courseId,
+      },
     },
   });
 
@@ -122,6 +128,17 @@ const updateUserProgress = async (req: Request) => {
         completedContents: [],
       },
     });
+  }
+
+  const currentContent = await prismaClient.content.findUnique({
+    where: { id: data.contentId },
+    include: {
+      module: true,
+    },
+  });
+
+  if (!currentContent) {
+    throw new ApiError(status.NOT_FOUND, "Content not found");
   }
 
   let completedContents = [...userProgress.completedContents];
@@ -144,14 +161,47 @@ const updateUserProgress = async (req: Request) => {
       ? Math.round((completedContents.length / totalContents) * 100)
       : 0;
 
-  const isCourseCompleted = progressPercentage === 100;
+
+  let nextContent = await prismaClient.content.findFirst({
+    where: {
+      moduleId: currentContent.moduleId,
+      serial: {
+        gt: currentContent.serial,
+      },
+    },
+    orderBy: {
+      serial: "asc",
+    },
+  });
+
+  if (!nextContent) {
+    const nextModule = await prismaClient.module.findFirst({
+      where: {
+        courseId: data.courseId,
+        weekNumber: {
+          gt: currentContent.module.weekNumber,
+        },
+      },
+      orderBy: {
+        weekNumber: "asc",
+      },
+      include: {
+        contents: {
+          orderBy: { serial: "asc" },
+          take: 1,
+        },
+      },
+    });
+
+    nextContent = nextModule?.contents[0] || null;
+  }
 
   const result = await prismaClient.userProgress.update({
     where: { id: userProgress.id },
     data: {
       completedContents,
       progress: progressPercentage,
-      completedAt: isCourseCompleted ? new Date() : null,
+      currentContentId: data.contentId,
       lastAccessed: new Date(),
     },
   });
