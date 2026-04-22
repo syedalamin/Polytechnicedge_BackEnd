@@ -1,12 +1,12 @@
 import prismaClient from "../../../config/prismaClient";
 import {
   ICreateUserProgress,
-  IUpdateUserProgress,
   IUserProgressFilter,
   IPaginationOptions,
   IPaginatedUserProgress,
 } from "./progress.interface";
 import { calculatePagination } from "../../../utils/pagination";
+import { Request } from "express";
 
 const createUserProgress = async (data: ICreateUserProgress) => {
   const [user, course] = await Promise.all([
@@ -104,17 +104,19 @@ const getUserProgressByUserAndCourse = async (
   return result;
 };
 
-const updateUserProgress = async (data: IUpdateUserProgress) => {
+const updateUserProgress = async (req: Request) => {
+  const data = req.body;
+  const { userId } = req.user as { userId: string };
   let userProgress = await prismaClient.userProgress.findUnique({
     where: {
-      userId_courseId: { userId: data.userId, courseId: data.courseId },
+      userId_courseId: { userId, courseId: data.courseId },
     },
   });
 
   if (!userProgress) {
     userProgress = await prismaClient.userProgress.create({
       data: {
-        userId: data.userId,
+        userId,
         courseId: data.courseId,
         completedContents: [],
       },

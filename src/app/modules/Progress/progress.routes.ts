@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
   "/create-progress",
-  auth(UserRole.STUDENT, UserRole.SUPER_ADMIN),
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
   validateRequest(userProgressValidation.createUserProgressValidation),
   userProgressController.createUserProgress,
 );

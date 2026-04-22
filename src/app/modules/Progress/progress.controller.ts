@@ -12,7 +12,7 @@ const createUserProgress = catchAsync(async (req, res) => {
 
 
 const updateUserProgress = catchAsync(async (req, res) => {
-  const result = await userProgressService.updateUserProgress(req.body);
+  const result = await userProgressService.updateUserProgress(req);
   sendResponse(res, httpStatus.OK, "User progress updated successfully", result);
 });
 

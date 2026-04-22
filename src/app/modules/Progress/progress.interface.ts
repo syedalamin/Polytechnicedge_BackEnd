@@ -18,7 +18,6 @@ export interface ICreateUserProgress {
 }
 
 export interface IUpdateUserProgress {
-  userId: string,
   courseId: string,
   contentId: string,      
   isCompleted: boolean

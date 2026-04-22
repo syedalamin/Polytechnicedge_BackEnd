@@ -89,7 +89,19 @@ const getMe = async (userId: string) => {
       studentProfile: true,
       orders: true,
       payments: true,
-      enrollments: true,
+      enrollments: {
+        include: {
+          course: {
+            include: {
+              modules: {
+                include: {
+                  contents: true,
+                },
+              },
+            },
+          },
+        },
+      },
       userProgress: true,
       certificates: true,
       notices: true,
