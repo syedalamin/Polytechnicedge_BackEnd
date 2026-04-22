@@ -15,8 +15,6 @@ export const enrollmentTypeDefs = `#graphql
   type Query {
     allEnrollments(filter: EnrollmentFilterInput, pagination: PaginationInput): PaginatedEnrollments!
     enrollment(id: ID): Enrollment
-    enrollmentsByUserId(userId: String!): [Enrollment!]!
-    enrollmentsByCourseId(courseId: String!): [Enrollment!]!
   }
 
   input EnrollmentFilterInput {

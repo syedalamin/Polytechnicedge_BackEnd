@@ -11,7 +11,6 @@ import { courseInstructorRoutes } from "../modules/CourseInstructors/courseInstr
 import { quizRoutes } from "../modules/Quizzes/quiz.routes.js";
 import { quizQuestionRoutes } from "../modules/QuizQuestions/quizQuestion.routes.js";
 import { quizAttemptRoutes } from "../modules/QuizAttempts/quizAttempt.routes.js";
-import { enrollmentRoutes } from "../modules/Enrollments/enrollment.routes.js";
 import { userProgressRoutes } from "../modules/Progress/progress.routes.js";
 import { orderRoutes } from "../modules/Orders/order.routes.js";
 import { paymentRoutes } from "../modules/Payments/payment.routes.js";
@@ -35,7 +34,6 @@ const moduleRouters = [
   { path: "/quizzes", route: quizRoutes },
   { path: "/quiz-questions", route: quizQuestionRoutes },
   { path: "/quiz-attempts", route: quizAttemptRoutes },
-  { path: "/enrollments", route: enrollmentRoutes },
   { path: "/progress", route: userProgressRoutes },
   { path: "/orders", route: orderRoutes },
   { path: "/payments", route: paymentRoutes },

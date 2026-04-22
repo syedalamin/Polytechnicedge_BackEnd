@@ -12,17 +12,9 @@ export interface IEnrollment {
   updatedAt: Date;
 }
 
-export interface ICreateEnrollment {
-  userId: string;
-  courseId: string;
-  orderItemId?: string;
-  expiresAt?: Date;
-}
 
-export interface IUpdateEnrollment {
-  status?: EnrollmentStatus;
-  expiresAt?: Date;
-}
+
+
 
 export interface IEnrollmentFilter {
   userId?: string | undefined;

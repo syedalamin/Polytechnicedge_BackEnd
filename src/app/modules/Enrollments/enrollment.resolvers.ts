@@ -16,11 +16,6 @@ export const enrollmentResolvers = {
     enrollment: async (_: any, { id }: { id: string }) => {
       return await enrollmentService.getEnrollmentById(id);
     },
-    enrollmentsByUserId: async (_: any, { userId }: { userId: string }) => {
-      return await enrollmentService.getEnrollmentsByUserId(userId);
-    },
-    enrollmentsByCourseId: async (_: any, { courseId }: { courseId: string }) => {
-      return await enrollmentService.getEnrollmentsByCourseId(courseId);
-    },
+  
   },
 };
