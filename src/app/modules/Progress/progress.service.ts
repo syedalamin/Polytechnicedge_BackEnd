@@ -107,6 +107,7 @@ const getUserProgressByUserAndCourse = async (
 const updateUserProgress = async (req: Request) => {
   const data = req.body;
   const { userId } = req.user as { userId: string };
+
   let userProgress = await prismaClient.userProgress.findUnique({
     where: {
       userId_courseId: { userId, courseId: data.courseId },
