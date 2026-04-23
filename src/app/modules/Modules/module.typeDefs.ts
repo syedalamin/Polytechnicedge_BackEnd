@@ -8,6 +8,7 @@ export const moduleTypeDefs = `#graphql
     slug: String!
     textInstruction: String
     estimatedDuration: Int!
+    serial : Int!
     contents: [Content]
     quizzes: [Quiz]
     createdAt: DateTime!

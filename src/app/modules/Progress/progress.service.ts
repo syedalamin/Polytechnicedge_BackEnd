@@ -110,6 +110,7 @@ const getUserProgressByUserAndCourse = async (
 const updateUserProgress = async (req: Request) => {
   const data = req.body as IUpdateUserProgress;
   const { userId } = req.user as { userId: string };
+  const { id: contentId } = req.params as { id: string };
 
   let userProgress = await prismaClient.userProgress.findUnique({
     where: {
@@ -131,7 +132,7 @@ const updateUserProgress = async (req: Request) => {
   }
 
   const currentContent = await prismaClient.content.findUnique({
-    where: { id: data.contentId },
+    where: { id: contentId },
     include: {
       module: true,
     },
@@ -144,11 +145,11 @@ const updateUserProgress = async (req: Request) => {
   let completedContents = [...userProgress.completedContents];
 
   if (data.isCompleted) {
-    if (!completedContents.includes(data.contentId)) {
-      completedContents.push(data.contentId);
+    if (!completedContents.includes(contentId)) {
+      completedContents.push(contentId);
     }
   } else {
-    completedContents = completedContents.filter((id) => id !== data.contentId);
+    completedContents = completedContents.filter((id) => id !== contentId);
   }
   const totalContents = await prismaClient.content.count({
     where: {
@@ -161,38 +162,42 @@ const updateUserProgress = async (req: Request) => {
       ? Math.round((completedContents.length / totalContents) * 100)
       : 0;
 
- const nextContent = await prismaClient.content.findFirst({
+  let nextContent = await prismaClient.content.findFirst({
     where: {
-      module: { courseId: data.courseId },
-      OR: [
-        {
-          moduleId: currentContent.moduleId,
-          serial: { gt: currentContent.serial }
-        },
-        {
-          module: { serial: { gt: currentContent.module.serial } }
-        }
-      ]
+      moduleId: currentContent.moduleId,
+      serial: { gt: currentContent.serial },
     },
-    orderBy: [
-      { module: { serial: 'asc' } },
-      { serial: 'asc' }
-    ]
+    orderBy: { serial: "asc" },
   });
 
- 
+  if (!nextContent) {
+    nextContent = await prismaClient.content.findFirst({
+      where: {
+        module: {
+          courseId: data.courseId,
+          serial: { gt: currentContent.module.serial },
+        },
+      },
+      include: { module: true },
+      orderBy: { module: { serial: "asc" } },
+    });
+  }
 
   const result = await prismaClient.userProgress.update({
     where: { id: userProgress.id },
     data: {
       completedContents,
       progress: progressPercentage,
-      currentContentId: data.contentId,
+      currentContentId: contentId,
       lastAccessed: new Date(),
     },
   });
 
-  return { ...result, nextContentId: nextContent?.id || null };
+  return {
+    ...result,
+    nextContentId: nextContent?.id || null,
+    nextContentSlug: nextContent?.slug || null,
+  };
 };
 
 const markCourseComplete = async (courseId: string) => {

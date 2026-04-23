@@ -11,8 +11,6 @@ const createUserProgressValidation = z.object({
 const updateUserProgressValidation = z.object({
   body: z.object({
     courseId: z.uuid(),
-    contentId: z.uuid(),
-    currentContentId: z.string().min(1).optional(),
     isCompleted: z.boolean(),
   }),
 });
