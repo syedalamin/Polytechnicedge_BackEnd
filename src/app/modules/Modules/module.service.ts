@@ -18,6 +18,13 @@ const createModule = async (data: ICreateModule) => {
     throw new Error("Course not found");
   }
 
+  const lastModule = await prismaClient.module.findFirst({
+    where: { courseId: data.courseId },
+    orderBy: { serial: "desc" },
+  });
+
+  const nextOrder = (lastModule?.serial ?? 0) + 1;
+
   const slug = await generateUniqueSlug(data.title, { model: "module" });
 
   const result = await prismaClient.module.create({
@@ -28,6 +35,7 @@ const createModule = async (data: ICreateModule) => {
       slug,
       textInstruction: data.textInstruction || null,
       estimatedDuration: data.estimatedDuration,
+      serial: nextOrder,
     },
   });
 
@@ -81,8 +89,6 @@ const getAllModules = async (
   };
 };
 
- 
-
 const getModuleBySlug = async (slug: string) => {
   const result = await prismaClient.module.findFirst({
     where: { slug },
@@ -96,7 +102,6 @@ const getModuleBySlug = async (slug: string) => {
   return result;
 };
 
- 
 const updateModule = async (id: string, data: IUpdateModule) => {
   const existingModule = await prismaClient.module.findUnique({
     where: { id },
@@ -137,9 +142,9 @@ const deleteModule = async (id: string) => {
 export const moduleService = {
   createModule,
   getAllModules,
- 
+
   getModuleBySlug,
- 
+
   updateModule,
   deleteModule,
 };

@@ -21,7 +21,6 @@ export interface ICreateUserProgress {
 export interface IUpdateUserProgress {
   courseId: string,
   contentId: string,
-  currentContentId: string,
   isCompleted: boolean
 }
 
