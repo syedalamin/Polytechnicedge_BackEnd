@@ -14,8 +14,12 @@ export const appConfig = {
     db: Number(process.env.REDIS_DB) || 0,
   },
   jwt: {
-    secret: process.env.JWT_SECRET || "your-secret-key",
-    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    accessSecret: process.env.ACCESS_SECRET,
+    accessExpiresInMs: process.env.ACCESS_TOKEN_EXPIRE_MS,
+    accessExpiresIn: process.env.ACCESS_TOKEN_EXPIRE_JWT,
+    refreshSecret: process.env.REFRESH_SECRET,
+    refreshExpiresInMs: process.env.REFRESH_TOKEN_EXPIRE_MS,
+    refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRE_JWT,
   },
   cors: {
     origin: process.env.CORS_ORIGIN || "*",

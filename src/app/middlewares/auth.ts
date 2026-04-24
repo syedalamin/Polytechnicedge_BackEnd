@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import httpStatus from "http-status";
 import { verifyToken } from "../../lib/generateToken";
 import { sendErrorResponse } from "../../Shared/sendErrorResponse";
+import { appConfig } from "../../config/appConfig";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -15,7 +16,7 @@ export interface AuthRequest extends Request {
 
 export const auth = (...allowedRoles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
-    const token = req.cookies?.token;
+    const token = req.cookies?.accessToken;
 
     if (!token) {
       sendErrorResponse(
@@ -26,7 +27,7 @@ export const auth = (...allowedRoles: string[]) => {
       );
     }
 
-    const decoded = verifyToken(token);
+    const decoded = verifyToken(token, appConfig.jwt.secret);
     if (!decoded) {
       sendErrorResponse(res, httpStatus.UNAUTHORIZED, "Invalid token", null);
       return;

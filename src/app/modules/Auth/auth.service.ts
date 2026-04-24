@@ -1,7 +1,8 @@
 import prismaClient from "../../../config/prismaClient";
 import bcrypt from "bcrypt";
-import { generateToken } from "../../../lib/generateToken";
+import { generateToken, verifyToken } from "../../../lib/generateToken";
 import { ApiError } from "../../../errors/apiError";
+import { appConfig } from "../../../config/appConfig";
 
 export interface ILogin {
   email: string;
@@ -9,7 +10,8 @@ export interface ILogin {
 }
 
 export interface ILoginResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 const login = async (data: ILogin): Promise<ILoginResponse> => {
@@ -26,18 +28,64 @@ const login = async (data: ILogin): Promise<ILoginResponse> => {
     throw ApiError.unauthorized("Invalid password");
   }
 
-  const token = generateToken({
+  const accessToken = generateToken(
+    {
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    appConfig.jwt.accessSecret as string,
+    appConfig.jwt.accessExpiresIn as string,
+  );
+  const refreshToken = generateToken(
+    {
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    appConfig.jwt.refreshSecret as string,
+    appConfig.jwt.refreshExpiresIn as string,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+const refreshToken = async (refreshToken: string) => {
+  const decoded = verifyToken(refreshToken, appConfig.jwt.refreshSecret as string);
+  if (!decoded) {
+    throw ApiError.unauthorized("Invalid refresh token");
+  }
+
+  const user = await prismaClient.user.findUnique({
+    where: { id: decoded.userId },
+  });
+
+  if (!user) {
+    throw ApiError.unauthorized("Invalid refresh token");
+  }
+
+  const payload = {
     userId: user.id,
     username: user.username,
     email: user.email,
     role: user.role,
-  });
-
-  return {
-    token,
   };
+
+  const accessToken = generateToken(
+    payload,
+    appConfig.jwt.accessSecret as string,
+    appConfig.jwt.accessExpiresIn as string,
+  );
+
+  return accessToken;
 };
 
 export const authService = {
   login,
+  refreshToken,
 };
