@@ -4,6 +4,8 @@ import { ApiError } from "../../../errors/apiError";
 import { appConfig } from "../../../config/appConfig";
 import { Request } from "express";
 import { comparePassword, hashPassword } from "../../../utils/hashPassword";
+import { sendEmail } from "../../../utils/sendEmail";
+import status from "http-status";
 
 export interface ILogin {
   email: string;
@@ -130,8 +132,70 @@ const changePassword = async (req: Request) => {
   return accessToken;
 };
 
+const forgetPassword = async (email: string): Promise<string> => {
+  const user = await prismaClient.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new ApiError( status.NOT_FOUND, "User not found");
+  }
+
+  const resetToken = generateToken(
+    {
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    appConfig.jwt.resetSecret as string,
+    appConfig.jwt.resetExpiresIn as string,
+  );
+
+  const resetUrl = `${appConfig.frontendUrl}/reset-password?token=${resetToken}`;
+  const html = `
+    <h1>Password Reset Request</h1>
+    <p>Hi ${user.username},</p>
+    <p>You requested to reset your password. Click the link below to reset it:</p>
+    <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
+    <p>This link will expire in 5 minutes.</p>
+    <p>If you didn't request this, please ignore this email.</p>
+  `;
+  await sendEmail(email, "Password Reset Request", html);
+  
+  return resetToken;
+};
+
+const resetPassword = async (
+  token: string,
+  newPassword: string,
+): Promise<void> => {
+  const decoded = verifyToken(token, appConfig.jwt.resetSecret as string);
+
+  if (!decoded || !decoded.userId) {
+     throw new ApiError(status.BAD_REQUEST, "Invalid or expired reset token");
+  }
+
+  const user = await prismaClient.user.findUnique({
+    where: { id: decoded.userId },
+  });
+
+  if (!user) {
+    throw new ApiError(status.NOT_FOUND, "User not found");
+  }
+
+  const hashedNewPassword = await hashPassword(newPassword);
+
+  await prismaClient.user.update({
+    where: { id: user.id },
+    data: { password: hashedNewPassword },
+  });
+};
+
 export const authService = {
   login,
   refreshToken,
   changePassword,
+  forgetPassword,
+  resetPassword,
 };
