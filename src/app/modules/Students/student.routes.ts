@@ -9,7 +9,6 @@ const router = Router();
 
 router.post(
   "/create-student",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(studentsValidation.createStudentValidation),
   studentsController.createStudentProfile,
 );

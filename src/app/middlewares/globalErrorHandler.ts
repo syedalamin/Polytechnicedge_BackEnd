@@ -22,6 +22,8 @@ export const globalErrorHandler = (
     handleTokenExpiredError(res);
   } else if (err?.name === "ZodError") {
     handleZodError(err as any, res);
+  } else if (res.headersSent) {
+    return res.end();
   } else {
     sendErrorResponse(
       res,

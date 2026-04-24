@@ -1,11 +1,13 @@
 import { verifyToken } from "../../lib/generateToken";
-import { graphqlErrorResponse } from "../../Shared/graphqlError";
-
+import { sendErrorResponse } from "../../Shared/sendErrorResponse";
+import httpStatus from "http-status";
 const graphqlContext = async ({ req, res }: { req: any; res: any }) => {
   const token = req.cookies?.token;
 
   if (!token) {
-    graphqlErrorResponse(
+    sendErrorResponse(
+      res,
+      httpStatus.FORBIDDEN,
       "You are not authorized, please login",
       "UNAUTHORIZED",
     );
@@ -13,7 +15,12 @@ const graphqlContext = async ({ req, res }: { req: any; res: any }) => {
 
   const decoded = verifyToken(token);
   if (!decoded) {
-    graphqlErrorResponse("Invalid token", "UNAUTHORIZED");
+    sendErrorResponse(
+      res,
+      httpStatus.FORBIDDEN,
+      "Invalid token",
+      "UNAUTHORIZED",
+    );
   }
 
   req.user = decoded;

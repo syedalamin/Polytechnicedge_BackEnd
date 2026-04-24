@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
- 
+
 import httpStatus from "http-status";
 import { verifyToken } from "../../lib/generateToken";
 import { sendErrorResponse } from "../../Shared/sendErrorResponse";
@@ -40,9 +40,9 @@ export const auth = (...allowedRoles: string[]) => {
         "You do not have permission to access this resource",
         null,
       );
+    } else {
+      req.user = decoded;
+      next();
     }
-
-    req.user = decoded;
-    next();
   };
 };
