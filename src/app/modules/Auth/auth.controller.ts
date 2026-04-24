@@ -5,7 +5,6 @@ import catchAsync from "../../../Shared/catchAsync";
 import { ApiError } from "../../../errors/apiError";
 import { appConfig } from "../../../config/appConfig";
 
-
 const login = catchAsync(async (req, res) => {
   const accessExpiresInMs = Number(appConfig.jwt.accessExpiresInMs);
   const refreshExpiresInMs = Number(appConfig.jwt.refreshExpiresInMs);
@@ -52,14 +51,22 @@ const refreshToken = catchAsync(async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: accessExpiresInMs ,
+    maxAge: accessExpiresInMs,
   });
 
   sendResponse(res, httpStatus.OK, "Token refreshed successfully", null);
+});
+
+const changePassword = catchAsync(async (req, res) => {
+  const result = await authService.changePassword(req);
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+  sendResponse(res, httpStatus.OK, result.message, null);
 });
 
 export const authController = {
   login,
   logout,
   refreshToken,
+  changePassword,
 };

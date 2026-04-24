@@ -27,7 +27,7 @@ export const auth = (...allowedRoles: string[]) => {
       );
     }
 
-    const decoded = verifyToken(token, appConfig.jwt.secret);
+    const decoded = verifyToken(token, appConfig.jwt.accessSecret as string);
     if (!decoded) {
       sendErrorResponse(res, httpStatus.UNAUTHORIZED, "Invalid token", null);
       return;
