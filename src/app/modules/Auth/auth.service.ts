@@ -104,7 +104,6 @@ const changePassword = async (req: Request) => {
     throw ApiError.notFound("User not found");
   }
 
-
   const isPasswordValid = await comparePassword(oldPassword, user.password);
   if (!isPasswordValid) {
     throw ApiError.unauthorized("Invalid old password");
@@ -117,7 +116,18 @@ const changePassword = async (req: Request) => {
     data: { password: hashedNewPassword },
   });
 
-  return { message: "Password changed successfully" };
+  const accessToken = generateToken(
+    {
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
+    appConfig.jwt.accessSecret as string,
+    appConfig.jwt.accessExpiresIn as string,
+  );
+
+  return accessToken;
 };
 
 export const authService = {

@@ -58,10 +58,16 @@ const refreshToken = catchAsync(async (req, res) => {
 });
 
 const changePassword = catchAsync(async (req, res) => {
-  const result = await authService.changePassword(req);
+  const accessExpiresInMs = Number(appConfig.jwt.accessExpiresInMs);
+  const accessToken = await authService.changePassword(req);
   res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  sendResponse(res, httpStatus.OK, result.message, null);
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: accessExpiresInMs,
+  });
+  sendResponse(res, httpStatus.OK, "Password changed successfully");
 });
 
 export const authController = {
