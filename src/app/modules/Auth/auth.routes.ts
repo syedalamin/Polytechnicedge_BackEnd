@@ -5,8 +5,25 @@ import { validateRequest } from "../../middlewares/validateRequest";
 import { authValidation } from "./auth.validation";
 import { auth } from "../../middlewares/auth";
 import { UserRole } from "../../../generated/prisma/enums";
+import { studentsValidation } from "../Students/student.validation";
 
 const router = Router();
+
+router.post(
+  "/register",
+  validateRequest(studentsValidation.createStudentValidation),
+  authController.register,
+);
+router.post(
+  "/verify-email-otp",
+  validateRequest(authValidation.verifyEmailOtpAndLoginValidation),
+  authController.verifyEmailOtpAndLogin,
+);
+router.post(
+  "/resend-otp",
+  validateRequest(authValidation.resendOtpValidation),
+  authController.resendOtp,
+);
 
 router.post(
   "/login",

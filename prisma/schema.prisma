@@ -80,20 +80,28 @@ enum SessionType {
 // ==================== MODELS ====================
 
 model User {
-  id                 String    @id @default(uuid())
-  email              String    @unique
-  username           String    @unique
-  slug               String    @unique
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  username           String   @unique
+  slug               String   @unique
   password           String
-  needPasswordChange Boolean   @default(false)
+  needPasswordChange Boolean  @default(false)
   role               UserRole
   status             String?
-  emailVerified      Boolean   @default(false)
-  twoFactorEnabled   Boolean   @default(false)
-  lastLogin          DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  deletedAt          DateTime?
+  emailVerified      Boolean  @default(false)
+
+  emailOtp        String?
+  emailOtpExpires DateTime?
+  otpAttempts     Int       @default(0)
+
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+
+  otpLastSentAt   DateTime?
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   adminProfile      AdminProfile?
   instructorProfile InstructorProfile?
@@ -268,13 +276,13 @@ model Module {
   courseId          String
   course            Course   @relation(fields: [courseId], references: [id])
   weekNumber        Int
-  serial           Int      @default(0)
-  title            String
-  slug             String
-  textInstruction  String?
+  serial            Int      @default(0)
+  title             String
+  slug              String
+  textInstruction   String?
   estimatedDuration Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   // Relações
   contents Content[]
@@ -294,7 +302,7 @@ model Content {
   textContent String?
   isLocked    Boolean     @default(true)
   duration    Int?
-  serial       Int        @default(0)
+  serial      Int         @default(0)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
