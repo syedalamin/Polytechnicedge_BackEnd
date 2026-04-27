@@ -11,7 +11,6 @@ import { generateUsername } from "../../../utils/generateUsername";
 import { slugGeneratorUser } from "../../../utils/slugGeneratorUser";
 import { UserRole } from "../../../generated/prisma/enums";
 import { generateOTP } from "../../../utils/generateOTP";
-// import { authenticator } from "otplib";
 
 export interface ILogin {
   email: string;
@@ -220,9 +219,13 @@ const login = async (
   });
 
   if (!user) {
-    throw ApiError.notFound("User not found");
-  }
-  if (user?.emailVerified === false) {
+    throw new ApiError(status.NOT_FOUND, "User not found");
+  } else if (user.isDeleted) {
+    throw new ApiError(
+      status.BAD_REQUEST,
+      "User account is deleted. Please contact support.",
+    );
+  } else if (user?.emailVerified === false) {
     return {
       resendOtp: true,
       message: "User already exists. Resending OTP for email verification.",
@@ -232,7 +235,7 @@ const login = async (
 
   const isPasswordValid = await comparePassword(data.password, user.password);
   if (!isPasswordValid) {
-    throw ApiError.unauthorized("Invalid password");
+    throw new ApiError(status.UNAUTHORIZED, "Invalid password");
   }
 
   const accessToken = generateToken(
@@ -268,7 +271,7 @@ const refreshToken = async (refreshToken: string) => {
     appConfig.jwt.refreshSecret as string,
   );
   if (!decoded) {
-    throw ApiError.unauthorized("Invalid refresh token");
+    throw new ApiError(status.UNAUTHORIZED, "Invalid refresh token");
   }
 
   const user = await prismaClient.user.findUnique({
@@ -276,7 +279,7 @@ const refreshToken = async (refreshToken: string) => {
   });
 
   if (!user) {
-    throw ApiError.unauthorized("Invalid refresh token");
+    throw new ApiError(status.UNAUTHORIZED, "Invalid refresh token");
   }
 
   const payload = {
@@ -298,7 +301,7 @@ const refreshToken = async (refreshToken: string) => {
 const changePassword = async (req: Request) => {
   const userId = req.user?.userId;
   if (!userId) {
-    throw ApiError.unauthorized("User not authenticated");
+    throw new ApiError(status.UNAUTHORIZED, "User not authenticated");
   }
 
   const { oldPassword, newPassword } = req.body;
@@ -307,12 +310,12 @@ const changePassword = async (req: Request) => {
   });
 
   if (!user) {
-    throw ApiError.notFound("User not found");
+    throw new ApiError(status.NOT_FOUND, "User not found");
   }
 
   const isPasswordValid = await comparePassword(oldPassword, user.password);
   if (!isPasswordValid) {
-    throw ApiError.unauthorized("Invalid old password");
+    throw new ApiError(status.UNAUTHORIZED, "Invalid old password");
   }
 
   const hashedNewPassword = await hashPassword(newPassword);

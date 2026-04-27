@@ -94,14 +94,14 @@ model User {
   emailOtpExpires DateTime?
   otpAttempts     Int       @default(0)
 
-  twoFactorEnabled Boolean @default(false)
+  twoFactorEnabled Boolean   @default(false)
   twoFactorSecret  String?
-
-  otpLastSentAt   DateTime?
-  lastLogin DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  isDeleted        Boolean   @default(false)
+  otpLastSentAt    DateTime?
+  lastLogin        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
 
   adminProfile      AdminProfile?
   instructorProfile InstructorProfile?
@@ -144,6 +144,7 @@ model InstructorProfile {
   settings        Json?
   dateOfBirth     DateTime?
   suspendedAt     DateTime?
+  isDeleted       Boolean   @default(false)
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -173,8 +174,9 @@ model StudentProfile {
   contactNumber2  String?
   educationLevel  String?
   interests       String[]
-  dateOfBirth     DateTime?
+  isDeleted       Boolean   @default(false)
   deletedAt       DateTime?
+  dateOfBirth     DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -200,6 +202,7 @@ model AdminProfile {
   backgroundImage String?
   contactNumber1  String?
   contactNumber2  String?
+  isDeleted       Boolean   @default(false)
   dateOfBirth     DateTime?
   deletedAt       DateTime?
   createdAt       DateTime  @default(now())
