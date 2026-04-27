@@ -6,62 +6,40 @@ import {
   IPaginatedPayments,
 } from "./payment.interface";
 import { calculatePagination } from "../../../utils/pagination";
+
+import SSLCommerzPayment from "sslcommerz-lts";
 import {
   PaymentStatus,
   OrderStatus,
   EnrollmentStatus,
 } from "../../../generated/prisma/enums";
 import { Request } from "express";
+import { ApiError } from "../../../errors/apiError";
+import status from "http-status";
+import { appConfig } from "../../../config/appConfig";
 
-const createPayment = async (req: Request) => {
-  const { userId } = req.user as {
-    userId: string;
-    username: string;
-    email: string;
-    role: string;
-  };
-  const data = req.body as ICreatePayment;
-  const [user, order] = await Promise.all([
-    prismaClient.user.findUnique({ where: { id: userId } }),
-    prismaClient.order.findUnique({
-      where: { id: data.orderId },
-      include: { items: true },
-    }),
-  ]);
+const getSSLCommerzInstance = () => {
+  const isLive = appConfig.ssl.isLive;
+  return new SSLCommerzPayment(
+    appConfig.ssl.storeId as string,
+    appConfig.ssl.storePassword as string,
+    isLive,
+  );
+};
 
-  if (!user) throw new Error("User not found");
-  if (!order) throw new Error("Order not found");
-
-  const existingPayment = await prismaClient.payment.findUnique({
-    where: { orderId: data.orderId },
-  });
-  if (existingPayment) throw new Error("Payment already exists for this order");
-
-  const payment = await prismaClient.payment.create({
-    data: {
-      userId: user.id,
-      orderId: order.id,
-      amount: order.totalAmount,
-      transactionId: data.transactionId,
-      paymentMethod: data.paymentMethod,
-      status: PaymentStatus.COMPLETED,
-      paidAt: new Date(),
-    },
+const processEnrollment = async (userId: string, orderId: string) => {
+  const order = await prismaClient.order.findUnique({
+    where: { id: orderId },
+    include: { items: true },
   });
 
-  await prismaClient.order.update({
-    where: { id: order.id },
-    data: {
-      status: OrderStatus.PAID,
-      transactionId: data.transactionId,
-    },
-  });
+  if (!order) throw new ApiError(status.NOT_FOUND, "Order not found");
 
   for (const item of order.items) {
     if (item.courseId) {
       await prismaClient.enrollment.create({
         data: {
-          userId: user.id,
+          userId,
           courseId: item.courseId,
           orderItemId: item.id,
           status: EnrollmentStatus.ACTIVE,
@@ -70,7 +48,7 @@ const createPayment = async (req: Request) => {
       });
       await prismaClient.userProgress.create({
         data: {
-          userId: user.id,
+          userId,
           courseId: item.courseId,
           progress: 0,
           isCompleted: false,
@@ -86,7 +64,7 @@ const createPayment = async (req: Request) => {
         for (const bundleItem of bundle.items) {
           await prismaClient.enrollment.create({
             data: {
-              userId: user.id,
+              userId,
               courseId: bundleItem.courseId,
               orderItemId: item.id,
               status: EnrollmentStatus.ACTIVE,
@@ -95,7 +73,7 @@ const createPayment = async (req: Request) => {
           });
           await prismaClient.userProgress.create({
             data: {
-              userId: user.id,
+              userId,
               courseId: bundleItem.courseId,
               progress: 0,
               isCompleted: false,
@@ -106,8 +84,290 @@ const createPayment = async (req: Request) => {
       }
     }
   }
+};
+// const createPayment = async (req: Request) => {
+//   const { userId } = req.user as {
+//     userId: string;
+//     username: string;
+//     email: string;
+//     role: string;
+//   };
+//   const data = req.body as ICreatePayment;
+//   const [user, order] = await Promise.all([
+//     prismaClient.user.findUnique({ where: { id: userId } }),
+//     prismaClient.order.findUnique({
+//       where: { id: data.orderId },
+//       include: { items: true },
+//     }),
+//   ]);
 
-  return payment;
+//   if (!user) throw new Error("User not found");
+//   if (!order) throw new Error("Order not found");
+
+//   const existingPayment = await prismaClient.payment.findUnique({
+//     where: { orderId: data.orderId },
+//   });
+//   if (existingPayment) throw new Error("Payment already exists for this order");
+
+//   const payment = await prismaClient.payment.create({
+//     data: {
+//       userId: user.id,
+//       orderId: order.id,
+//       amount: order.totalAmount,
+//       transactionId: data.transactionId,
+//       paymentMethod: data.paymentMethod,
+//       status: PaymentStatus.COMPLETED,
+//       paidAt: new Date(),
+//     },
+//   });
+
+//   await prismaClient.order.update({
+//     where: { id: order.id },
+//     data: {
+//       status: OrderStatus.PAID,
+//       transactionId: data.transactionId,
+//     },
+//   });
+
+//   for (const item of order.items) {
+//     if (item.courseId) {
+//       await prismaClient.enrollment.create({
+//         data: {
+//           userId: user.id,
+//           courseId: item.courseId,
+//           orderItemId: item.id,
+//           status: EnrollmentStatus.ACTIVE,
+//           enrolledAt: new Date(),
+//         },
+//       });
+//       await prismaClient.userProgress.create({
+//         data: {
+//           userId: user.id,
+//           courseId: item.courseId,
+//           progress: 0,
+//           isCompleted: false,
+//           lastAccessed: new Date(),
+//         },
+//       });
+//     } else if (item.bundleId) {
+//       const bundle = await prismaClient.courseBundle.findUnique({
+//         where: { id: item.bundleId },
+//         include: { items: true },
+//       });
+//       if (bundle) {
+//         for (const bundleItem of bundle.items) {
+//           await prismaClient.enrollment.create({
+//             data: {
+//               userId: user.id,
+//               courseId: bundleItem.courseId,
+//               orderItemId: item.id,
+//               status: EnrollmentStatus.ACTIVE,
+//               enrolledAt: new Date(),
+//             },
+//           });
+//           await prismaClient.userProgress.create({
+//             data: {
+//               userId: user.id,
+//               courseId: bundleItem.courseId,
+//               progress: 0,
+//               isCompleted: false,
+//               lastAccessed: new Date(),
+//             },
+//           });
+//         }
+//       }
+//     }
+//   }
+
+//   return payment;
+// };
+
+const createPayment = async (req: Request) => {
+  const { userId, username, email } = req.user as {
+    userId: string;
+    username: string;
+    email: string;
+    role: string;
+  };
+  const data = req.body as ICreatePayment;
+
+  const [user, order] = await Promise.all([
+    prismaClient.user.findUnique({ where: { id: userId } }),
+    prismaClient.order.findUnique({
+      where: { id: data.orderId },
+      include: { items: true },
+    }),
+  ]);
+
+  if (!user) throw new ApiError(status.NOT_FOUND, "User not found");
+  if (!order) throw new ApiError(status.NOT_FOUND, "Order not found");
+
+  const existingPayment = await prismaClient.payment.findUnique({
+    where: { orderId: data.orderId },
+  });
+
+  if (existingPayment) {
+    throw new ApiError(
+      status.BAD_REQUEST,
+      "Payment already exists for this order",
+    );
+  }
+
+  const transactionId = `TXN_${Date.now()}`;
+
+  await prismaClient.payment.create({
+    data: {
+      userId: user.id,
+      orderId: order.id,
+      amount: order.totalAmount,
+      transactionId,
+      paymentMethod: "SSLCommerz",
+      status: PaymentStatus.PENDING,
+    },
+  });
+
+  const sslData = {
+    total_amount: order.totalAmount.toString(),
+    currency: "BDT",
+    tran_id: transactionId,
+    success_url: `${appConfig.ssl.backendUrl}/api/v1/payments/success`,
+    fail_url: `${appConfig.ssl.backendUrl}/api/v1/payments/fail`,
+    cancel_url: `${appConfig.ssl.backendUrl}/api/v1/payments/cancel`,
+    ipn_url: `${appConfig.ssl.backendUrl}/api/v1/payments/ipn`,
+    cus_name: username,
+    cus_email: email,
+  };
+
+  const sslcz = getSSLCommerzInstance();
+  const response = await sslcz.init(sslData);
+
+  return {
+    GatewayPageURL: response.GatewayPageURL,
+    transactionId,
+  };
+};
+
+const handlePaymentSuccess = async (tran_id: string, val_id: string) => {
+  const sslcz = getSSLCommerzInstance();
+  const validation = await sslcz.validate({ val_id });
+
+  if (validation.status === "VALID") {
+    const payment = await prismaClient.payment.findUnique({
+      where: { transactionId: tran_id },
+    });
+
+    if (!payment) throw new ApiError(status.NOT_FOUND, "Payment not found");
+
+    if (payment.status !== PaymentStatus.COMPLETED) {
+      await prismaClient.payment.update({
+        where: { transactionId: tran_id },
+        data: {
+          status: PaymentStatus.COMPLETED,
+          paidAt: new Date(),
+          valId: val_id,
+          bankTranId: validation.bank_tran_id || null,
+        },
+      });
+
+      await prismaClient.order.update({
+        where: { id: payment.orderId },
+        data: {
+          status: OrderStatus.PAID,
+          transactionId: tran_id,
+        },
+      });
+
+      await processEnrollment(payment.userId, payment.orderId);
+    }
+  }
+
+  return validation;
+};
+
+const sslSuccess = async (req: Request) => {
+  const { val_id, tran_id } = req.body || req.query;
+  await handlePaymentSuccess(tran_id, val_id);
+
+  return {
+    redirectUrl: `${appConfig.frontendUrl}/success`,
+  };
+};
+
+const sslFail = async (req: Request) => {
+  const { tran_id } = req.body || req.query;
+
+  if (tran_id) {
+    await prismaClient.payment.update({
+      where: { transactionId: tran_id },
+      data: {
+        status: PaymentStatus.FAILED,
+      },
+    });
+
+    await prismaClient.order.update({
+      where: { transactionId: tran_id },
+      data: {
+        status: OrderStatus.FAILED,
+      },
+    });
+  }
+
+  return {
+    redirectUrl: `${appConfig.frontendUrl}/fail`,
+  };
+};
+
+const sslCancel = async (req: Request) => {
+  const { tran_id } = req.body || req.query;
+
+  if (tran_id) {
+    await prismaClient.payment.update({
+      where: { transactionId: tran_id },
+      data: {
+        status: PaymentStatus.FAILED,
+      },
+    });
+
+    await prismaClient.order.update({
+      where: { transactionId: tran_id },
+      data: {
+        status: OrderStatus.CANCELLED,
+      },
+    });
+  }
+
+  return {
+    redirectUrl: `${process.env.FRONTEND_URL}/cancel`,
+  };
+};
+
+const sslIPN = async (req: Request) => {
+  const { val_id, tran_id } = req.body || req.query;
+  await handlePaymentSuccess(tran_id, val_id);
+  return true;
+};
+
+// Initiate refund
+const initiateRefund = async (data: {
+  refund_amount: number;
+  refund_remarks: string;
+  bank_tran_id: string;
+  refe_id: string;
+}) => {
+  const sslcz = getSSLCommerzInstance();
+  return await sslcz.initiateRefund(data);
+};
+
+// Query refund status
+const queryRefund = async (data: { refund_ref_id: string }) => {
+  const sslcz = getSSLCommerzInstance();
+  return await sslcz.refundQuery(data);
+};
+
+// Query transaction by transaction ID
+const queryTransactionByTranId = async (data: { tran_id: string }) => {
+  const sslcz = getSSLCommerzInstance();
+  return await sslcz.transactionQueryByTransactionId(data);
 };
 
 const getAllPayments = async (
@@ -157,7 +417,7 @@ const getPaymentByOrderId = async (orderId: string) => {
 };
 const getPaymentByUserId = async (userId: string) => {
   const result = await prismaClient.payment.findMany({
-    where: { userId},
+    where: { userId },
     include: { user: true, order: { include: { items: true } } },
   });
 
@@ -216,5 +476,12 @@ export const paymentService = {
   getPaymentById,
   getPaymentByOrderId,
   deletePayment,
-  getPaymentByUserId
+  getPaymentByUserId,
+  sslSuccess,
+  sslFail,
+  sslCancel,
+  sslIPN,
+  initiateRefund,
+  queryRefund,
+  queryTransactionByTranId,
 };
