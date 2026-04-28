@@ -29,6 +29,7 @@ async function seed() {
       role: UserRole.SUPER_ADMIN,
       needPasswordChange: false,
       emailVerified: true,
+      lastLogin: new Date(),
       adminProfile: {
         create: {
           slug,

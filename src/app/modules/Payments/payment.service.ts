@@ -33,7 +33,7 @@ const processEnrollment = async (userId: string, orderId: string) => {
     include: { items: true },
   });
 
-  if (!order) throw new ApiError(status.NOT_FOUND, "Order not found");
+  if (!order) throw new ApiError(status.NOT_FOUND, "Order not found....");
 
   for (const item of order.items) {
     if (item.courseId) {
@@ -215,13 +215,12 @@ const createPayment = async (req: Request) => {
 
   const transactionId = `TXN_${Date.now()}`;
 
-  await prismaClient.payment.create({
+  const payment = await prismaClient.payment.create({
     data: {
       userId: user.id,
       orderId: order.id,
       amount: order.totalAmount,
       transactionId,
-      paymentMethod: "SSLCommerz",
       status: PaymentStatus.PENDING,
     },
   });
@@ -236,54 +235,90 @@ const createPayment = async (req: Request) => {
     ipn_url: `${appConfig.ssl.backendUrl}/api/v1/payments/ipn`,
     cus_name: username,
     cus_email: email,
+    shipping_method: "NO",
+    product_name: "Course",
+    product_category: "Education",
+    product_profile: "general",
   };
 
   const sslcz = getSSLCommerzInstance();
   const response = await sslcz.init(sslData);
 
+  await prismaClient.payment.update({
+    where: { id: payment.id },
+    data: { sessionkey: response.sessionkey },
+  });
+
   return {
+    status: response.status,
     GatewayPageURL: response.GatewayPageURL,
-    transactionId,
+    sessionkey: response.sessionkey,
   };
 };
 
 const handlePaymentSuccess = async (tran_id: string, val_id: string) => {
   const sslcz = getSSLCommerzInstance();
-  const validation = await sslcz.validate({ val_id });
 
-  if (validation.status === "VALID") {
-    const payment = await prismaClient.payment.findUnique({
+  let validation;
+
+  try {
+    validation = await sslcz.validate({ val_id });
+  } catch (err) {
+    console.log("SSL Validate API failed:", err);
+    throw new ApiError(500, "Payment validation failed from SSLCommerz");
+  }
+
+  if (!validation || validation.status !== "VALID") {
+    const payment = await prismaClient.payment.update({
       where: { transactionId: tran_id },
+      data: {
+        status: PaymentStatus.FAILED,
+      },
     });
 
-    if (!payment) throw new ApiError(status.NOT_FOUND, "Payment not found");
+    await prismaClient.order.update({
+      where: { id: payment.orderId },
+      data: {
+        status: OrderStatus.FAILED,
+      },
+    });
 
-    if (payment.status !== PaymentStatus.COMPLETED) {
-      await prismaClient.payment.update({
-        where: { transactionId: tran_id },
-        data: {
-          status: PaymentStatus.COMPLETED,
-          paidAt: new Date(),
-          valId: val_id,
-          bankTranId: validation.bank_tran_id || null,
-        },
-      });
+    return validation;
+  }
 
-      await prismaClient.order.update({
-        where: { id: payment.orderId },
-        data: {
-          status: OrderStatus.PAID,
-          transactionId: tran_id,
-        },
-      });
+  const payment = await prismaClient.payment.findUnique({
+    where: { transactionId: tran_id },
+  });
 
-      await processEnrollment(payment.userId, payment.orderId);
-    }
+  if (!payment) {
+    throw new ApiError(status.NOT_FOUND, "Payment not found");
+  }
+
+  if (payment.status !== PaymentStatus.COMPLETED) {
+    await prismaClient.payment.update({
+      where: { transactionId: tran_id },
+      data: {
+        status: PaymentStatus.COMPLETED,
+        paidAt: new Date(),
+        valId: val_id,
+        bankTranId: validation.bank_tran_id || null,
+        paymentGateway: validation as any,
+      },
+    });
+
+    await prismaClient.order.update({
+      where: { id: payment.orderId },
+      data: {
+        status: OrderStatus.PAID,
+        transactionId: tran_id,
+      },
+    });
+
+    await processEnrollment(payment.userId, payment.orderId);
   }
 
   return validation;
 };
-
 const sslSuccess = async (req: Request) => {
   const { val_id, tran_id } = req.body || req.query;
   await handlePaymentSuccess(tran_id, val_id);
@@ -343,6 +378,7 @@ const sslCancel = async (req: Request) => {
 
 const sslIPN = async (req: Request) => {
   const { val_id, tran_id } = req.body || req.query;
+  console.log("SSL IPN Callback Received:", { val_id, tran_id });
   await handlePaymentSuccess(tran_id, val_id);
   return true;
 };

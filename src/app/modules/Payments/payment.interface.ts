@@ -6,7 +6,9 @@ export interface IPayment {
   orderId: string;
   amount: any;
   transactionId: string;
-  paymentMethod: string;
+  valId: string | null;
+  bankTranId: string | null;
+  paymentGateway: any | null;
   status: PaymentStatus;
   paidAt: Date | null;
   createdAt: Date;
@@ -22,10 +24,6 @@ export interface IPaymentWithOrder extends IPayment {
 
 export interface ICreatePayment {
   orderId: string;
-  amount: number;
-  transactionId: string;
-  paymentMethod: string;
-  status: PaymentStatus;
 }
 
 export interface IUpdatePayment {

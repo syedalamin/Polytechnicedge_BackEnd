@@ -41,7 +41,6 @@ export const appConfig = {
     storeId: process.env.SSL_STORE_ID,
     storePassword: process.env.SSL_STORE_PASSWORD,
     isLive: process.env.SSL_IS_LIVE === "true",
-    isSandbox: process.env.SSL_IS_SANDBOX === "true",
     backendUrl: process.env.BACKEND_URL,
   },
 };

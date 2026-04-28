@@ -452,7 +452,7 @@ model Order {
   user          User        @relation(fields: [userId], references: [id])
   totalAmount   Decimal     @db.Decimal(10, 2)
   status        OrderStatus @default(PENDING)
-  transactionId String?       @unique
+  transactionId String?     @unique
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -481,25 +481,24 @@ model OrderItem {
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  orderId       String        @unique
-  order         Order         @relation(fields: [orderId], references: [id])
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  amount        Decimal       @db.Decimal(10, 2)
-  transactionId String        @unique
-  valId         String?       @unique // SSLCommerz validation ID
-  bankTranId    String?       // SSLCommerz bank transaction ID
-  paymentMethod String
-  invoiceId     String?       @unique
-  token         String?
-  status        PaymentStatus @default(PENDING)
-  paidAt        DateTime?
-  refundStatus  String?       // REFUND_INITIATED, REFUND_COMPLETED, etc.
-  refundId      String?       // SSLCommerz refund reference ID
-  refundAmount  Decimal?      @db.Decimal(10, 2)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id             String        @id @default(uuid())
+  orderId        String        @unique
+  order          Order         @relation(fields: [orderId], references: [id])
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  amount         Decimal       @db.Decimal(10, 2)
+  transactionId  String        @unique
+  valId          String?       @unique  
+  bankTranId     String?  
+  paymentGateway Json? 
+  sessionkey    String?
+  status         PaymentStatus @default(PENDING)
+  paidAt         DateTime?
+  refundStatus   String?  
+  refundId       String? 
+  refundAmount   Decimal?      @db.Decimal(10, 2)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@map("payments")
 }

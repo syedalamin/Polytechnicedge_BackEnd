@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
   "/",
-  auth(UserRole.STUDENT, UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.STUDENT),
   validateRequest(orderValidation.createOrderValidation),
   orderController.createOrder,
 );
