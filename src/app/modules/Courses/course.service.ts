@@ -10,6 +10,8 @@ import {
 import { calculatePagination } from "../../../utils/pagination";
 import { generateUniqueSlug } from "../../../utils/slugGenerator";
 import { Request } from "express";
+import { ApiError } from "../../../errors/apiError";
+import status from "http-status";
 
 const createCourse = async (req: Request) => {
   const data: ICreateCourse = req.body;
@@ -18,6 +20,13 @@ const createCourse = async (req: Request) => {
   const authorId = user?.userId || "unknown";
 
   const slug = await generateUniqueSlug(data.title, { model: "course" });
+
+  const category = await prismaClient.category.findUnique({
+    where: { id: data.categoryId },
+  });
+  if (!category) {
+    throw new ApiError(status.NOT_FOUND, "Category not found. Please provide a valid categoryId.");
+  }
 
   const result = await prismaClient.course.create({
     data: {

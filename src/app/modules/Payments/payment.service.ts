@@ -221,6 +221,7 @@ const createPayment = async (req: Request) => {
       orderId: order.id,
       amount: order.totalAmount,
       transactionId,
+      paymentGateway: { provider: "SSLCommerz" },
       status: PaymentStatus.PENDING,
     },
   });
@@ -264,10 +265,8 @@ const handlePaymentSuccess = async (tran_id: string, val_id: string) => {
   try {
     validation = await sslcz.validate({ val_id });
   } catch (err) {
-    console.log("SSL Validate API failed:", err);
     throw new ApiError(500, "Payment validation failed from SSLCommerz");
   }
-
   if (!validation || validation.status !== "VALID") {
     const payment = await prismaClient.payment.update({
       where: { transactionId: tran_id },
@@ -282,7 +281,6 @@ const handlePaymentSuccess = async (tran_id: string, val_id: string) => {
         status: OrderStatus.FAILED,
       },
     });
-
     return validation;
   }
 
@@ -332,19 +330,23 @@ const sslFail = async (req: Request) => {
   const { tran_id } = req.body || req.query;
 
   if (tran_id) {
+    const failedPayment = await prismaClient.payment.findUnique({
+      where: { transactionId: tran_id },
+    });
     await prismaClient.payment.update({
       where: { transactionId: tran_id },
       data: {
         status: PaymentStatus.FAILED,
       },
     });
-
-    await prismaClient.order.update({
-      where: { transactionId: tran_id },
-      data: {
-        status: OrderStatus.FAILED,
-      },
-    });
+    if (failedPayment) {
+      await prismaClient.order.update({
+        where: { id: failedPayment.orderId },
+        data: {
+          status: OrderStatus.FAILED,
+        },
+      });
+    }
   }
 
   return {
@@ -356,6 +358,9 @@ const sslCancel = async (req: Request) => {
   const { tran_id } = req.body || req.query;
 
   if (tran_id) {
+    const cancelledPayment = await prismaClient.payment.findUnique({
+      where: { transactionId: tran_id },
+    });
     await prismaClient.payment.update({
       where: { transactionId: tran_id },
       data: {
@@ -363,12 +368,14 @@ const sslCancel = async (req: Request) => {
       },
     });
 
-    await prismaClient.order.update({
-      where: { transactionId: tran_id },
-      data: {
-        status: OrderStatus.CANCELLED,
-      },
-    });
+    if (cancelledPayment) {
+      await prismaClient.order.update({
+        where: { id: cancelledPayment.orderId },
+        data: {
+          status: OrderStatus.CANCELLED,
+        },
+      });
+    }
   }
 
   return {
