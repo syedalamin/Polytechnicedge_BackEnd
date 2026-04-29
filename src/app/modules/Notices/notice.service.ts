@@ -1,13 +1,22 @@
 import prismaClient from "../../../config/prismaClient";
-import { ICreateNotice, IUpdateNotice, INoticeFilter, IPaginationOptions, IPaginatedNotices } from "./notice.interface";
+import {
+  ICreateNotice,
+  IUpdateNotice,
+  INoticeFilter,
+  IPaginationOptions,
+  IPaginatedNotices,
+} from "./notice.interface";
 import { calculatePagination } from "../../../utils/pagination";
+import { Request } from "express";
 
-const createNotice = async (data: ICreateNotice) => {
-  const user = await prismaClient.user.findUnique({ where: { id: data.authorId } });
-  if (!user) throw new Error("User not found");
+const createNotice = async (req: Request) => {
+  const { userId } = req.user as { userId: string };
+  const data = req.body as ICreateNotice;
 
   if (data.courseId) {
-    const course = await prismaClient.course.findUnique({ where: { id: data.courseId } });
+    const course = await prismaClient.course.findUnique({
+      where: { id: data.courseId },
+    });
     if (!course) throw new Error("Course not found");
   }
 
@@ -15,8 +24,8 @@ const createNotice = async (data: ICreateNotice) => {
     data: {
       title: data.title,
       content: data.content,
-      authorId: data.authorId,
-      isGlobal: data.isGlobal ?? true,
+      authorId: userId,
+      isGlobal: data.isGlobal || false,
       courseId: data.courseId || null,
     },
   });
@@ -28,7 +37,8 @@ const getAllNotices = async (
   filter: INoticeFilter,
   paginationOptions: IPaginationOptions,
 ): Promise<IPaginatedNotices> => {
-  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(paginationOptions);
+  const { page, limit, skip, sortBy, sortOrder } =
+    calculatePagination(paginationOptions);
   const where: any = {};
   if (filter.authorId) where.authorId = filter.authorId;
   if (filter.isGlobal !== undefined) where.isGlobal = filter.isGlobal;
@@ -51,7 +61,10 @@ const getAllNotices = async (
     prismaClient.notice.count({ where }),
   ]);
 
-  return { notices: result, meta: { page, limit, total, totalPages: Math.ceil(total / limit) } };
+  return {
+    notices: result,
+    meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
+  };
 };
 
 const getNoticeById = async (id: string) => {
@@ -66,16 +79,6 @@ const getNoticeById = async (id: string) => {
 const getGlobalNotices = async () => {
   const result = await prismaClient.notice.findMany({
     where: { isGlobal: true },
-    include: { author: true },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return result;
-};
-
-const getNoticesByCourseId = async (courseId: string) => {
-  const result = await prismaClient.notice.findMany({
-    where: { courseId },
     include: { author: true },
     orderBy: { createdAt: "desc" },
   });
@@ -112,7 +115,6 @@ export const noticeService = {
   getAllNotices,
   getNoticeById,
   getGlobalNotices,
-  getNoticesByCourseId,
   updateNotice,
   deleteNotice,
 };

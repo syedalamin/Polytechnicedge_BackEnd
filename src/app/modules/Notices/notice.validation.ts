@@ -4,7 +4,6 @@ const createNoticeValidation = z.object({
   body: z.object({
     title: z.string().min(1, { message: "Title is required" }).max(200),
     content: z.string().min(1, { message: "Content is required" }),
-    authorId: z.string().min(1, { message: "Author ID is required" }),
     isGlobal: z.boolean().optional(),
     courseId: z.string().optional(),
   }),
