@@ -10,7 +10,6 @@ export const schema = makeExecutableSchema({
 import { Router } from "express";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express5";
-import cors from "cors";
 import bodyParser from "body-parser";
 import graphqlContext from "../middlewares/graphqlContext";
  
@@ -28,7 +27,6 @@ const server = new ApolloServer({
 
     graphqlRouter.use(
       "/graphql",
-      cors(),
       bodyParser.json(),
       expressMiddleware(server, {
         context:  graphqlContext
