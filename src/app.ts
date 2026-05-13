@@ -12,7 +12,7 @@ import graphqlRouter from "./app/graphql/graphql.router.js";
 import { Routers } from "./app/routers/index.js";
 
 const app: Application = express();
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = ["http://localhost:3000", "http://192.168.0.102:3000"];
 app.use(
   helmet({
     contentSecurityPolicy: false, // GraphQL Playground/Fetch er jonno eta off rakha safe
