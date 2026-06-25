@@ -20,6 +20,10 @@ export interface ILogin {
 export interface ILoginResponse {
   accessToken: string;
   refreshToken: string;
+  loginData: {
+    userId: string;
+    role: UserRole;
+  };
 }
 export type ILoginOtpResponse = {
   resendOtp: boolean;
@@ -258,10 +262,15 @@ const login = async (
     appConfig.jwt.refreshSecret as string,
     appConfig.jwt.refreshExpiresIn as string,
   );
+  const loginData = {
+    userId: user.id,
+    role: user.role,
+  }
 
   return {
     accessToken,
     refreshToken,
+    loginData,
   };
 };
 

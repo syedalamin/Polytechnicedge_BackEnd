@@ -59,7 +59,7 @@ const login = catchAsync(async (req, res) => {
       resendOtp: true,
       email: result.email,
     });
-  } else if ("accessToken" in result && "refreshToken" in result) {
+  } else if ("accessToken" in result && "refreshToken" in result && "loginData" in result) {
     res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -74,13 +74,21 @@ const login = catchAsync(async (req, res) => {
       maxAge: refreshExpiresInMs,
     });
 
+    res.cookie("loginData", result.loginData, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: accessExpiresInMs,
+    });
+
     sendResponse(res, httpStatus.OK, "Login successful", null);
-  }
+  } 
 });
 
 const logout = catchAsync(async (_req, res) => {
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
+  res.clearCookie("loginData");
   sendResponse(res, httpStatus.OK, "Logout successful", null);
 });
 
@@ -99,6 +107,7 @@ const refreshToken = catchAsync(async (req, res) => {
     sameSite: "strict",
     maxAge: accessExpiresInMs,
   });
+   
 
   sendResponse(res, httpStatus.OK, "Token refreshed successfully", null);
 });
