@@ -75,7 +75,7 @@ const login = catchAsync(async (req, res) => {
     });
 
     res.cookie("loginData", result.loginData, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: accessExpiresInMs,
