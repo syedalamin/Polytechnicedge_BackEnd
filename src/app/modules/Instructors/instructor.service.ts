@@ -32,6 +32,7 @@ const createInstructor = async (
       data: {
         email: instructorData.email,
         password: hashedPassword,
+        emailVerified: true,
         username,
         slug,
         role: UserRole.INSTRUCTOR,
