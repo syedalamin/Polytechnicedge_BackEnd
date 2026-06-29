@@ -265,7 +265,7 @@ const login = async (
   const loginData = {
     userId: user.id,
     role: user.role,
-  }
+  };
 
   return {
     accessToken,
@@ -379,7 +379,7 @@ const forgetPassword = async (email: string): Promise<string> => {
   `;
   await sendEmail(email, "Password Reset Request", html);
 
-  return resetToken;
+  return "Password reset link sent to your email. Please check your inbox.";
 };
 
 const resetPassword = async (
