@@ -183,9 +183,15 @@ const verifyEmailOtpAndLogin = async (email: string, otp: string) => {
     appConfig.jwt.refreshExpiresIn as string,
   );
 
+    const loginData = {
+      userId: user.id,
+      role: user.role,
+    };
+
   return {
     accessToken,
     refreshToken,
+    loginData,
   };
 };
 

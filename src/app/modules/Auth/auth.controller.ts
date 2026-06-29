@@ -4,6 +4,7 @@ import { authService } from "./auth.service";
 import catchAsync from "../../../Shared/catchAsync";
 import { ApiError } from "../../../errors/apiError";
 import { appConfig } from "../../../config/appConfig";
+import { sendErrorResponse } from "../../../Shared/sendErrorResponse";
 
 const register = catchAsync(async (req, res) => {
   const result = await authService.register(req.body);
@@ -34,6 +35,12 @@ const verifyEmailOtpAndLogin = catchAsync(async (req, res) => {
     sameSite: "strict",
     maxAge: refreshExpiresInMs,
   });
+  res.cookie("loginData", result.loginData, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: accessExpiresInMs,
+  });
 
   sendResponse(res, httpStatus.OK, "Login successful", null);
 });
@@ -55,11 +62,15 @@ const login = catchAsync(async (req, res) => {
   const result = await authService.login(req.body);
 
   if ("resendOtp" in result && result.resendOtp) {
-    sendResponse(res, httpStatus.OK, result.message, {
+    sendErrorResponse(res, httpStatus.BAD_REQUEST, result.message, {
       resendOtp: true,
       email: result.email,
     });
-  } else if ("accessToken" in result && "refreshToken" in result && "loginData" in result) {
+  } else if (
+    "accessToken" in result &&
+    "refreshToken" in result &&
+    "loginData" in result
+  ) {
     res.cookie("accessToken", result.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -82,7 +93,7 @@ const login = catchAsync(async (req, res) => {
     });
 
     sendResponse(res, httpStatus.OK, "Login successful", null);
-  } 
+  }
 });
 
 const logout = catchAsync(async (_req, res) => {
@@ -107,7 +118,6 @@ const refreshToken = catchAsync(async (req, res) => {
     sameSite: "strict",
     maxAge: accessExpiresInMs,
   });
-   
 
   sendResponse(res, httpStatus.OK, "Token refreshed successfully", null);
 });
