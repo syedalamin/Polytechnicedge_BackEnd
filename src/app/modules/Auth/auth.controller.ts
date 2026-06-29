@@ -4,8 +4,7 @@ import { authService } from "./auth.service";
 import catchAsync from "../../../Shared/catchAsync";
 import { ApiError } from "../../../errors/apiError";
 import { appConfig } from "../../../config/appConfig";
-import { sendErrorResponse } from "../../../Shared/sendErrorResponse";
-
+ 
 const register = catchAsync(async (req, res) => {
   const result = await authService.register(req.body);
   sendResponse(res, httpStatus.OK, result.message, result);
@@ -62,10 +61,7 @@ const login = catchAsync(async (req, res) => {
   const result = await authService.login(req.body);
 
   if ("resendOtp" in result && result.resendOtp) {
-    sendErrorResponse(res, httpStatus.BAD_REQUEST, result.message, {
-      resendOtp: true,
-      email: result.email,
-    });
+    sendResponse(res, httpStatus.OK, result.message, result);
   } else if (
     "accessToken" in result &&
     "refreshToken" in result &&
