@@ -36,8 +36,8 @@ export const passwordRegex =
       .string()
       .max(50, { message: "Gender cannot exceed 50 characters" })
       .optional(),
-    profileImage: z.string().url().optional(),
-    backgroundImage: z.string().url().optional(),
+    profileImage: z.url().optional(),
+    backgroundImage: z.url().optional(),
     contactNumber1: z
       .string()
       .max(20, { message: "Contact number cannot exceed 20 characters" })
@@ -78,8 +78,8 @@ export const passwordRegex =
       .string()
       .max(50, { message: "Gender cannot exceed 50 characters" })
       .optional(),
-    profileImage: z.string().url().optional(),
-    backgroundImage: z.string().url().optional(),
+    profileImage: z.url().optional(),
+    backgroundImage: z.url().optional(),
     contactNumber1: z
       .string()
       .max(20, { message: "Contact number cannot exceed 20 characters" })

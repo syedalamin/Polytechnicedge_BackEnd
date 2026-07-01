@@ -29,6 +29,7 @@ const createAdmin = async (adminData: ICreateAdmin) => {
       data: {
         email: adminData.email,
         password: hashedPassword,
+        emailVerified: true,
         username,
         slug,
         role: UserRole.ADMIN,
