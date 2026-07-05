@@ -28,5 +28,6 @@ const updateAdminProfile = catchAsync(async (req, res) => {
 
 export const adminController = {
   createAdmin,
-  deleteAdmin,updateAdminProfile
+  deleteAdmin,
+  updateAdminProfile,
 };
