@@ -3,7 +3,6 @@ import {
   ICreateCategory,
   IUpdateCategory,
   IPaginationOptions,
-  IPaginatedCategories,
 } from "./category.interface";
 import { calculatePagination } from "../../../utils/pagination";
 import { generateUniqueSlug } from "../../../utils/slugGenerator";

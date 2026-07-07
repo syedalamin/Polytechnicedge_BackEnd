@@ -1,4 +1,4 @@
-import prismaClient from "../../../config/prismaClient";
+
 import { categoryService } from "./category.service";
 import { IPaginationOptions } from "./category.interface";
 import graphqlAuth from "../../middlewares/graphqlAuth";
