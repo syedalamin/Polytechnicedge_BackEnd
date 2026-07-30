@@ -102,6 +102,19 @@ const getModuleBySlug = async (slug: string) => {
   return result;
 };
 
+const modulesByCourseId = async (id: string) => {
+  const result = await prismaClient.module.findMany({
+    where: { courseId: id },
+    include: {
+      course: true,
+      contents: true,
+      quizzes: true,
+    },
+  });
+
+  return result;
+};
+
 const updateModule = async (id: string, data: IUpdateModule) => {
   const existingModule = await prismaClient.module.findUnique({
     where: { id },
@@ -142,7 +155,7 @@ const deleteModule = async (id: string) => {
 export const moduleService = {
   createModule,
   getAllModules,
-
+  modulesByCourseId,
   getModuleBySlug,
 
   updateModule,

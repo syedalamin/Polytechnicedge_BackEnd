@@ -34,5 +34,20 @@ export const moduleResolvers = {
       );
       return await moduleService.getModuleBySlug(slug);
     },
+
+    modulesByCourseId: async (
+      _: any,
+      { courseId }: { courseId: string },
+      context: any,
+    ) => {
+      graphqlAuth(
+        context,
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN,
+        UserRole.INSTRUCTOR,
+        UserRole.STUDENT,
+      );
+      return await moduleService.modulesByCourseId(courseId);
+    },
   },
 };
