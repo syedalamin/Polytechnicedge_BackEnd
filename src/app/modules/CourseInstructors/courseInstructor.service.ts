@@ -65,7 +65,11 @@ const getAllCourseInstructors = async (
       where,
       include: {
         course: true,
-        instructor: true,
+        instructor: {
+          include: {
+            user: true,
+          },
+        },
       },
       skip,
       take: limit,
@@ -93,7 +97,11 @@ const getCourseInstructorById = async (id: string) => {
     where: { id },
     include: {
       course: true,
-      instructor: true,
+      instructor: {
+        include: {
+          user: true,
+        },
+      },
     },
   });
 
