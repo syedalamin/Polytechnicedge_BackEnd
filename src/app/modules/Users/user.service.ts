@@ -85,7 +85,20 @@ const getMe = async (userId: string) => {
     where: { id: userId },
     include: {
       adminProfile: true,
-      instructorProfile: true,
+      instructorProfile: {
+        include: {
+          courseInstructors: {
+            include: {
+              course: {
+                
+                include: {
+                  category: true,
+                }
+              },
+            }
+          },
+        },
+      },
       studentProfile: true,
       orders: true,
       payments: true,

@@ -9,7 +9,7 @@ const router = Router();
 
 router.post(
   "/create-module",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(moduleValidation.createModuleValidation),
   moduleController.createModule,
 );
@@ -18,7 +18,7 @@ router.post(
 
 router.patch(
   "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(moduleValidation.updateModuleValidation),
   moduleController.updateModule,
 );

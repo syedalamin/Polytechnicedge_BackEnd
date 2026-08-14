@@ -9,14 +9,14 @@ const router = Router();
 
 router.post(
   "/create-content",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(contentValidation.createContentValidation),
   contentController.createContent,
 );
 
 router.patch(
   "/:id",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.INSTRUCTOR),
   validateRequest(contentValidation.updateContentValidation),
   contentController.updateContent,
 );

@@ -91,8 +91,6 @@ const updateInstructorProfile = async (
   return result;
 };
 
- 
-
 const getAllInstructors = async (
   paginationOptions: IPaginationOptions,
 ): Promise<IPaginatedInstructors> => {

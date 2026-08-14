@@ -1,4 +1,4 @@
-import { EnrollmentStatus } from "../../../generated/prisma/enums";
+import { EnrollmentStatus } from "../../generated/prisma/enums";
 
 export interface IEnrollment {
   id: string;
@@ -11,10 +11,6 @@ export interface IEnrollment {
   createdAt: Date;
   updatedAt: Date;
 }
-
-
-
-
 
 export interface IEnrollmentFilter {
   userId?: string | undefined;
