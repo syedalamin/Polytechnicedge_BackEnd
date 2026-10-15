@@ -50,7 +50,7 @@ export const courseTypeDefs = `#graphql
     allCourses(filter: CourseFilterInput, pagination: PaginationInput): PaginatedCourses!
     course(slug: String): Course
     featuredCourses: [Course!]!
-    publishedCourses: [Course!]!
+    publishedCourses(filter: CourseFilterInput, pagination: PaginationInput): PaginatedCourses!
   }
 
 

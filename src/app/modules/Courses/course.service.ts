@@ -25,7 +25,10 @@ const createCourse = async (req: Request) => {
     where: { id: data.categoryId },
   });
   if (!category) {
-    throw new ApiError(status.NOT_FOUND, "Category not found. Please provide a valid categoryId.");
+    throw new ApiError(
+      status.NOT_FOUND,
+      "Category not found. Please provide a valid categoryId.",
+    );
   }
 
   const result = await prismaClient.course.create({
@@ -119,26 +122,68 @@ const getAllCourses = async (
   return response;
 };
 
-const publishedCourses = async () => {
-  const result = await prismaClient.course.findMany({
-    where: { isPublished: true },
-    include: {
-      category: true,
-      modules: {
-        include: { contents: true },
-      },
-      enrollments: true,
-      orderItems: true,
-      userProgress: true,
-      certificates: true,
-      notices: true,
-      instructors: true,
-      bundleItems: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+const publishedCourses = async (
+  filter: ICourseFilter,
+  paginationOptions: IPaginationOptions,
+): Promise<IPaginatedCourses> => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    calculatePagination(paginationOptions);
 
-  return result;
+  const where: any = {};
+
+  if (filter.categoryId) {
+    where.categoryId = filter.categoryId;
+  }
+  if (filter.level) {
+    where.level = filter.level;
+  }
+  if (filter.isFeatured !== undefined) {
+    where.isFeatured = filter.isFeatured;
+  }
+  if (filter.search) {
+    where.OR = [
+      { title: { contains: filter.search, mode: "insensitive" } },
+      { shortDescription: { contains: filter.search, mode: "insensitive" } },
+      { tags: { has: filter.search } },
+    ];
+  }
+
+  const [result, total] = await Promise.all([
+    prismaClient.course.findMany({
+      where: { isPublished: true, ...where },
+      include: {
+        category: true,
+        modules: {
+          include: { contents: true },
+        },
+        enrollments: true,
+        orderItems: true,
+        userProgress: true,
+        certificates: true,
+        notices: true,
+        instructors: true,
+        bundleItems: true,
+      },
+      skip,
+      take: limit,
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+    }),
+    prismaClient.course.count({ where: { isPublished: true, ...where } }),
+  ]);
+
+  const response = {
+    courses: result,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+
+  return response;
 };
 
  
@@ -223,7 +268,7 @@ export const courseService = {
   createCourse,
   getAllCourses,
   getCourseBySlug,
-publishedCourses,
+  publishedCourses,
   getFeaturedCourses,
   updateCourse,
   publishCourse,
